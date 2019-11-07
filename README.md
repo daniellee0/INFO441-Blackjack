@@ -7,12 +7,7 @@ blackjack online against a dealer. Blackjack is a simple card game that focuses 
 New users to the game will benefit by learning the basics of the game. On the other hand,
 experienced users with time to kill will benefit from an ad-free place to mindlessly play a round or
 two.
-As developers this project will provide the opportunities to:
-* Practice and polish the skills learnt
-* Complete a challenging task using a simplified and well known example
-* Work on a project that can be scaled up or down depending on project complexities
-* Work on a project that requires a diverse set of skills
-* Work on a fun project
+As developers this project will provide the opportunities to practice and polish the skills learnt. We would also find that completing a  task using a simplified and well known example will be challenging yet rewarding. Working on a project that can be scaled up or down depending on project complexities motivates us to work on this application. Finally, working on a project that requires a diverse set of skills and that is also fun is a great way to exercise our skills as developers. 
 
 # Scope
 
