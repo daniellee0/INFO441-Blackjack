@@ -27,7 +27,8 @@ run through several hands against a dealer without any hiccups.
 
 
 # Technical Description
-
+![image]
+(https://i.imgur.com/Yqn3X9T.png)
 # User Stories
 
 | Priority          | User               | Description                                                                                                                                                                                                                                                                                                                                               |
