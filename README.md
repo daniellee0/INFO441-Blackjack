@@ -8,11 +8,11 @@ New users to the game will benefit by learning the basics of the game. On the ot
 experienced users with time to kill will benefit from an ad-free place to mindlessly play a round or
 two.
 As developers this project will provide the opportunities to:
-● Practice and polish the skills learnt
-● Complete a challenging task using a simplified and well known example
-● Work on a project that can be scaled up or down depending on project complexities
-● Work on a project that requires a diverse set of skills
-● Work on a fun project
+* Practice and polish the skills learnt
+* Complete a challenging task using a simplified and well known example
+* Work on a project that can be scaled up or down depending on project complexities
+* Work on a project that requires a diverse set of skills
+* Work on a fun project
 
 # Scope
 
