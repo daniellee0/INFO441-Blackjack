@@ -45,16 +45,24 @@ run through several hands against a dealer without any hiccups.
 # Endpoints
 
 **`/v1/Users/register`:** ​Register a user for the current game session
+
 **`/v1/Users/{userid}/unregister`:** ​ Unregister a user for the current game session
+
 **`/v1/Games/{gameid}/Users/{userid}/bet`:** ​ Place a bet on the next hand
+
 **`v1/Games/{gameid}/Users/{userid}/deal`:** ​ Position cards
+
 **`/v1/Games/{gameid}/Users/{userid}/hit`:** ​ Execute a given hand
+
 **`v1/Games/{gameid}/Users/{userid}/stand`:** ​Execute a given hand
+
 
 ## Stretch goals:
 
 **`v1/Users/SignUp`:** ​register a new user
+
 **`v1/Users/{userid}/SignOut`:** ​sign out existing user
+
 **`v1/Games`:** ​ retrieve a list of all games
 
 
