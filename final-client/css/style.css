@@ -1,0 +1,165 @@
+* {
+    box-sizing: border-box; /* all elements include border and padding in size */
+}
+
+.player-container {
+    font-family: 'Roboto Condensed', sans-serif;
+    border: 4px solid black;
+    border-radius: 2rem;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 350px;
+    height: 140px;
+}
+
+.other-player-container, .house-player-container {
+    height: 110px;
+}
+
+.status-bar, .name-container, .card-container, .button-container {
+    margin: 2px;
+}
+
+.name-container:not(.house-name-container), .card-container:not(.house-card-container), .button-container {
+    position: relative;
+    bottom: 35px;
+}
+
+.house-name-container, .house-card-container {
+    position: relative;
+    bottom: 5px;
+}
+
+.status-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    bottom: 25px;
+}
+
+p {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.chip-container, .status-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    background-color: white;
+    padding-right: 4px;
+}
+
+.chip-container {
+    margin-left: 8px;
+}
+
+.status-container {
+    margin-right: 8px;
+}
+
+.player-name {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.chip-counter, .status-text {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.card {
+    width: 40px;
+    height: 60px;
+}
+
+.chip-icon, .status-icon {
+    width: 14px;
+    height: 14px;
+    margin: 5px;
+}
+
+.chat-container {
+    border: 1px solid black;
+    width: 330px;
+    height: 300px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.chat-output, .log-output {
+    overflow: auto;
+}
+
+.chat-text, .log-text {
+    width: 300px;
+    word-wrap: break-word;
+    margin: 6px;
+}
+
+.chat-button-container {
+    border-top: 1px solid black;
+    padding-top: 6px;
+}
+
+.player-1 {
+    position: absolute;
+    bottom: 20px;
+    right: 35%;
+}
+
+.player-2 {
+    position: absolute;
+    bottom: 20px;
+    right: 70%
+}
+
+.player-3 {
+    position: absolute;
+    bottom: 40%;
+    right: 70%
+}
+
+.player-4 {
+    position: absolute;
+    top: 20px;
+    right: 70%
+}
+
+.player-5 {
+    position: absolute;
+    top: 20px;
+    right: 35%
+}
+
+.player-6 {
+    position: absolute;
+    bottom: 40%;
+    right: 35%
+}
+
+.house-player-container {
+    position: absolute;
+    top: 20px; 
+    right: 6px;
+}
+
+.hidden {
+    display: none;
+}

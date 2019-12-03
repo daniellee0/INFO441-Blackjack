@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="author-1" content="Daniel K Lee">
+    <meta name="author-2" content="Lilian Mburu">
+    <meta name="author-2" content="Nikolai Frank Nilsen">
+    <meta name="description" content="Info 441 Final Project">
+    <meta name="keywords" content="HTML, CSS, JS">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Condensed&#38;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&#38;display=swap">
+    <link rel="stylesheet" href="css/style.css">
+
+    <title>Blackjack</title>
+</head>
+
+<body>
+    <div class="player-container main-player-container player-1">
+        <div class="status-bar main-player-status">
+            <div class="chip-container main-chip-container">
+                <img class="chip-icon" src="img/poker-chip.png" alt="poker-chip-icon">
+                <p class="chip-counter main-chip-counter">100</p>
+            </div>
+            <div class="status-container main-status-container">
+                <img class="status-icon green-checkmark" src="img/red-x.png" alt="green-checkmark">
+                <p class="status-text main-status-text">Unavailable</p>
+            </div>
+        </div>
+        <div class="name-container main-name-container">
+            <p class="player-name main-player-name">Player 1</p>
+        </div>
+        <div class="card-container main-card-container">
+            <img class="card card-front" src="https://deckofcardsapi.com/static/img/2H.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+        </div>
+        <div class="button-container">
+            <button class="game-button start-button" type="button">Start Game</button>
+            <button class="game-button bet-button hidden" type="button">Bet</button>
+            <input class="bet-input hidden" type="text">
+            <button class="game-button hit-button hidden" type="button">Hit</button>
+            <button class="game-button stay-button hidden" type="button">Stay</button>
+        </div>
+    </div>
+    
+    <div class="player-container other-player-container player-2">
+        <div class="status-bar other-player-status">
+            <div class="chip-container other-chip-container">
+                <img class="chip-icon" src="img/poker-chip.png" alt="poker-chip-icon">
+                <p class="chip-counter other-chip-counter">100</p>
+            </div>
+            <div class="status-container other-status-container">
+                <img class="status-icon green-checkmark" src="img/ellipsis.png" alt="green-checkmark">
+                <p class="status-text other-status-text">Deciding</p>
+            </div>
+        </div>
+        <div class="name-container other-name-container">
+            <p class="player-name other-player-name">Player 2</p>
+        </div>
+        <div class="card-container other-card-container">
+            <img class="card card-front" src="https://deckofcardsapi.com/static/img/2H.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+        </div>
+    </div>
+
+    <div class="player-container other-player-container player-3">
+        <div class="status-bar other-player-status">
+            <div class="chip-container other-chip-container">
+                <img class="chip-icon" src="img/poker-chip.png" alt="poker-chip-icon">
+                <p class="chip-counter other-chip-counter">100</p>
+            </div>
+            <div class="status-container other-status-container">
+                <img class="status-icon green-checkmark" src="img/green-check.png" alt="green-checkmark">
+                <p class="status-text other-status-text">Ready</p>
+            </div>
+        </div>
+        <div class="name-container other-name-container">
+            <p class="player-name other-player-name">Player 3</p>
+        </div>
+        <div class="card-container other-card-container">
+            <img class="card card-front" src="https://deckofcardsapi.com/static/img/2H.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+        </div>
+    </div>
+    
+
+    <div class="player-container other-player-container player-4">
+        <div class="status-bar other-player-status">
+            <div class="chip-container other-chip-container">
+                <img class="chip-icon" src="img/poker-chip.png" alt="poker-chip-icon">
+                <p class="chip-counter other-chip-counter">100</p>
+            </div>
+            <div class="status-container other-status-container">
+                <img class="status-icon green-checkmark" src="img/ellipsis.png" alt="green-checkmark">
+                <p class="status-text other-status-text">Deciding</p>
+            </div>
+        </div>
+        <div class="name-container other-name-container">
+            <p class="player-name other-player-name">Player 4</p>
+        </div>
+        <div class="card-container other-card-container">
+            <img class="card card-front" src="https://deckofcardsapi.com/static/img/2H.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+        </div>
+    </div>
+    
+    <div class="player-container other-player-container player-5">
+        <div class="status-bar other-player-status">
+            <div class="chip-container other-chip-container">
+                <img class="chip-icon" src="img/poker-chip.png" alt="poker-chip-icon">
+                <p class="chip-counter other-chip-counter">100</p>
+            </div>
+            <div class="status-container other-status-container">
+                <img class="status-icon green-checkmark" src="img/ellipsis.png" alt="green-checkmark">
+                <p class="status-text other-status-text">Deciding</p>
+            </div>
+        </div>
+        <div class="name-container other-name-container">
+            <p class="player-name other-player-name">Player 5</p>
+        </div>
+        <div class="card-container other-card-container">
+            <img class="card card-front" src="https://deckofcardsapi.com/static/img/2H.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+        </div>
+    </div>  
+    
+    <div class="player-container other-player-container player-6">
+        <div class="status-bar other-player-status">
+            <div class="chip-container other-chip-container">
+                <img class="chip-icon" src="img/poker-chip.png" alt="poker-chip-icon">
+                <p class="chip-counter other-chip-counter">100</p>
+            </div>
+            <div class="status-container other-status-container">
+                <img class="status-icon green-checkmark" src="img/ellipsis.png" alt="green-checkmark">
+                <p class="status-text other-status-text">Deciding</p>
+            </div>
+        </div>
+        <div class="name-container other-name-container">
+            <p class="player-name other-player-name">Player 6</p>
+        </div>
+        <div class="card-container other-card-container">
+            <img class="card card-front" src="https://deckofcardsapi.com/static/img/2H.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+        </div>
+    </div> 
+
+
+    <div class="player-container house-player-container">
+        <div class="name-container house-name-container">
+            <p class="player-name house-player-name">House</p>
+        </div>
+        <div class="card-container house-card-container">
+            <img class="card card-front" src="https://deckofcardsapi.com/static/img/2H.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+            <img class="card card-back" src="img/card-back.png" alt="card-back">
+        </div>
+    </div>
+    <div class="chat-container">
+        <div class="log-output hidden">
+            <p class="log-text">YoyoyoyoyoYoyoyoyoyoYoyoyoyoyoYoyoyoyoyoYoyoyoyoyo</p>
+            <p class="log-text">Yoyoyoyoyo</p>
+            <p class="log-text">Yoyoyoyoyo</p>
+            <p class="log-text">Yoyoyoyoyo</p>
+            <p class="log-text">Yoyoyoyoyo</p>
+        </div>
+        <div class="chat-output">
+            <p class="chat-text">Yoyoyoyoyo</p>
+            <p class="chat-text">Yoyoyoyoyo</p>
+            <p class="chat-text">Yoyoyoyoyo</p>
+            <p class="chat-text">Yoyoyoyoyo</p>
+        </div>
+        <div class="chat-button-container">
+            <button class="chat-button log-tab-button" type="button">Log</button>
+            <button class="chat-button chat-tab-button" type="button">Chat</button>
+            <input class="chat-input" type="text">
+            <button class="chat-button submit-button" type="button">Submit</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="js/index.js"></script>
+</body>
+
+</html>

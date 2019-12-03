@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="author-1" content="Daniel K Lee">
+    <meta name="author-2" content="Lilian Mburu">
+    <meta name="author-2" content="Nikolai Frank Nilsen">
+    <meta name="description" content="Info 441 Final Project">
+    <meta name="keywords" content="HTML, CSS, JS">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Condensed&#38;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&#38;display=swap">
+    <link rel="stylesheet" href="css/style.css">
+
+    <title>Blackjack</title>
+</head>
+
+<body>
+    <div class="player-container main-player-container player-1">
+        <div class="status-bar main-player-status">
+            <div class="chip-container main-chip-container">
+                <img class="chip-icon" src="img/poker-chip.png" alt="poker-chip-icon">
+                <p class="chip-counter main-chip-counter">0</p>
+            </div>
+            <div class="status-container main-status-container">
+                <img class="status-icon green-checkmark" src="img/red-x.png" alt="red-x">
+                <p class="status-text main-status-text">Unavailable</p>
+            </div>
+        </div>
+        <div class="name-container main-name-container">
+            <p class="player-name main-player-name"></p>
+        </div>
+        <div class="card-container main-card-container">
+
+        </div>
+        <div class="button-container">
+            <button class="game-button start-button" type="button">Start Game</button>
+            <button class="game-button bet-button hidden" type="button">Bet</button>
+            <input class="bet-input hidden" type="text">
+            <button class="game-button hit-button hidden" type="button">Hit</button>
+            <button class="game-button stay-button hidden" type="button">Stay</button>
+        </div>
+    </div>
+
+    <div class="player-container house-player-container">
+        <div class="name-container house-name-container">
+            <p class="player-name house-player-name">House</p>
+        </div>
+        <div class="card-container house-card-container">
+        </div>
+    </div>
+    <div class="chat-container">
+        <div class="log-output">
+            <p class="log-text">Log</p>
+        </div>
+        <div class="chat-output hidden">
+            <p class="chat-text">Chat</p>
+        </div>
+        <div class="chat-button-container">
+            <button class="chat-button log-tab-button" type="button">Log</button>
+            <button class="chat-button chat-tab-button" type="button">Chat</button>
+            <input class="chat-input" type="text">
+            <button class="chat-button submit-button" type="button">Submit</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="js/index.js"></script>
+</body>
+
+</html>
