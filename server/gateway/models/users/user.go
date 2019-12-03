@@ -11,7 +11,7 @@ type User struct {
 	Name  string `json:"name"`
 	Status string `json:"status"`
 	Chips  int `json:"chips"`
-	Cards  []string `json:"cards"`
+	Cards  string `json:"cards"`
 }
 
 //NewUser represents a new user signing up for an account
@@ -37,8 +37,9 @@ func (nu *NewUser) ToUser() (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+	c := strings.Join(nu.Cards, " ")
 	
-	user := &User{Name: nu.Name, Status: nu.Status, Chips: nu.Chips, Cards: nu.Cards}
+	user := &User{Name: nu.Name, Status: nu.Status, Chips: nu.Chips, Cards: c}
 	return user, nil
 }
 
