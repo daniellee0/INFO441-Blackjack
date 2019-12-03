@@ -157,6 +157,8 @@ $(".log-tab-button").click(function() {
 // TO DO
 $(".submit-button").click(function() {
     let chatText = $(".chat-input").val();
+    $(".chat-input").val("");
+    showChat();
     sendChat(chatText);
 });
 
