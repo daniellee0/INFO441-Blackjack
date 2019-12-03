@@ -199,35 +199,19 @@ function sendChat(text) {
 function updateGameState(stateString) {
     // If game hasn't started yet, show only start button.
     if (stateString === "pregame") {
-        $(".start-button").removeClass("hidden");
-        $(".bet-button").addClass("hidden");
-        $(".bet-input").addClass("hidden");
-        $(".hit-button").addClass("hidden");
-        $(".stay-button").addClass("hidden");
+        showGameStart();
 
     // If betting, show only bet inputs.
     } else if (stateString === "betting") {
-        $(".start-button").addClass("hidden");
-        $(".bet-button").removeClass("hidden");
-        $(".bet-input").removeClass("hidden");
-        $(".hit-button").addClass("hidden");
-        $(".stay-button").addClass("hidden");
+        showBetInputs();
 
     // If playing, show only hit/stay buttons.
     } else if (stateString === "playing") {
-        $(".start-button").addClass("hidden");
-        $(".bet-button").addClass("hidden");
-        $(".bet-input").addClass("hidden");
-        $(".hit-button").removeClass("hidden");
-        $(".stay-button").removeClass("hidden");
+        showHitStayInputs();
     
     // Otherwise, hide everything.
     } else {
-        $(".start-button").addClass("hidden");
-        $(".bet-button").addClass("hidden");
-        $(".bet-input").addClass("hidden");
-        $(".hit-button").addClass("hidden");
-        $(".stay-button").addClass("hidden");
+        hideGameInputs();
     }
 }
 
@@ -279,6 +263,11 @@ function updateMainPlayer(playerObj) {
     updateChips(playerObj.chips, $(".main-chip-container"));
     updateStatus(playerObj.status, $(".main-status-container"));
     updateCards(playerObj.cards, $(".main-card-container"));
+
+    // If player went bust, hide game inputs since they can no longer hit/stay.
+    if (playerObj.status === "bust") {
+        hideGameInputs();
+    }
 }
 
 // Uses given object containing player information to
@@ -347,6 +336,39 @@ function showChat() {
 function showLog() {
     $(".chat-output").addClass("hidden");
     $(".log-output").removeClass("hidden");
+}
+
+function showGameStart() {
+    $(".start-button").removeClass("hidden");
+    $(".bet-button").addClass("hidden");
+    $(".bet-input").addClass("hidden");
+    $(".hit-button").addClass("hidden");
+    $(".stay-button").addClass("hidden");
+}
+
+function showBetInputs() {
+    $(".start-button").addClass("hidden");
+    $(".bet-button").removeClass("hidden");
+    $(".bet-input").removeClass("hidden");
+    $(".hit-button").addClass("hidden");
+    $(".stay-button").addClass("hidden");
+
+}
+
+function showHitStayInputs() {
+    $(".start-button").addClass("hidden");
+    $(".bet-button").addClass("hidden");
+    $(".bet-input").addClass("hidden");
+    $(".hit-button").removeClass("hidden");
+    $(".stay-button").removeClass("hidden");
+}
+
+function hideGameInputs() {
+    $(".start-button").addClass("hidden");
+    $(".bet-button").addClass("hidden");
+    $(".bet-input").addClass("hidden");
+    $(".hit-button").addClass("hidden");
+    $(".stay-button").addClass("hidden");
 }
 
 // Returns the appropriate status icon/text depending on
