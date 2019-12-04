@@ -90,12 +90,14 @@ const EXAMPLE_GAME_STATE = {
     players: [
         {
             playerName: "Player 1",
+            playerID: "1",
             status: "ready",
             chips: 100,
             cards: ["2S", "AH"]
         },
         {
             playerName: "Player 2",
+            playerID: "2",
             status: "deciding",
             chips: 92,
             cards: ["B", "B"]
@@ -108,40 +110,70 @@ const EXAMPLE_GAME_STATE = {
     ]
 }
 
+const URL_BASE = "wws://"
+
 // This is the name of the player who is on the client. Should be given
 // by the server rather than pre-assigned.
-var currentPlayer = "Player 1";
+var currentPlayerID = "1";
 
 // Tracks the next available slot in the client for the next player to join
 // on (MAX 6 SLOTS). Note that this value starts at 2, since the current user
 // is always considered as taking the first slot.
 var nextVacantSlot = 2;
 
-// TEST FUNCTION CALLS --------------------------------
-
-// Change EXAMPLE_GAME_STATE to get different results!
-updateGameState(EXAMPLE_GAME_STATE["gameState"]);
-updateAllPlayers(EXAMPLE_GAME_STATE["players"]);
-
 // ASSIGNING EVENT HANDLERS ---------------------------
 
-// TO DO
+var socket = new WebSocket(URL_BASE);
+
+socket.onopen = function (event) {
+    let registerRequest = {
+        type: "register",
+        text: "none"
+    }
+
+    socket.send(JSON.stringify(registerRequest));
+}
+
+socket.onmessage = function (event) {
+    let msg = JSON.parse(event.data);
+    switch(msg.type) {
+        case "register":
+            currentPlayerID = msg.id;
+        case "logMessage":
+            addTextToLog(msg.text);
+        case "chatMessage":
+            addTextToChat(msg.text);
+        case "update":
+            updateGameState(msg.gameState);
+            updateAllPlayers(msg.players);
+    }
+}
+
+// Unregister client user if they close window.
+$(window).unload(function() {
+    let unregisterRequest = {
+        type: "unregister",
+        text: "none",
+        id: currentPlayerID
+    }
+
+    socket.send(JSON.stringify(unregisterRequest));
+});
+
 $(".start-button").click(function() {
     startGame();
 });
 
-// TO DO
 $(".bet-button").click(function() {
     let betAmount = $(".bet-input").val();
     bet(betAmount);
+    $(".bet-input").val("");
 });
 
-// TO DO
 $(".hit-button").click(function() {
     hit();
 });
 
-// TO DO
 $(".stay-button").click(function() {
     stay();
 });
@@ -154,12 +186,11 @@ $(".log-tab-button").click(function() {
     showLog();
 });
 
-// TO DO
 $(".submit-button").click(function() {
     let chatText = $(".chat-input").val();
-    $(".chat-input").val("");
     showChat();
     sendChat(chatText);
+    $(".chat-input").val("");
 });
 
 // FUNCTIONS ------------------------------------------
@@ -167,31 +198,61 @@ $(".submit-button").click(function() {
 // This function will send a request to the websocket connection
 // confirming that the player is ready to start the game.
 function startGame() {
+    let startRequest = {
+        type: "startGame",
+        text: "none",
+        id: currentPlayerID
+    }
     
+    socket.send(JSON.stringify(startRequest));
 }
 
 // This function will send a request to the websocket connection
 // that the player will bet the given amount.
 function bet(amount) {
+    let betRequest = {
+        type: "bet",
+        text: amount,
+        id: currentPlayerID
+    }
 
+    socket.send(JSON.stringify(betRequest));
 }
 
 // This function will send a request to the websocket connection
 // that the player would like to draw a card.
 function hit() {
+    let hitRequest = {
+        type: "hit",
+        text: "none",
+        id: currentPlayerID
+    }
 
+    socket.send(JSON.stringify(hitRequest));
 }
 
 // This function will send a request to the websocket connection
 // that the player would like to stay.
 function stay() {
+    let stayRequest = {
+        type: "hit",
+        text: "none",
+        id: currentPlayerID
+    }
 
+    socket.send(JSON.stringify(stayRequest));
 }
 
 // This function will send a request to the websocket connection
 // to add the given text to the chat.
 function sendChat(text) {
+    let chatRequest = {
+        type: "chat",
+        text: text,
+        id: currentPlayerID
+    }
 
+    socket.send(JSON.stringify(chatRequest));
 }
 
 // Determines which buttons/inputs to display for the client to use
@@ -223,7 +284,7 @@ function updateAllPlayers(playersArray) {
         let player = playersArray[i];
 
         // We've reached the player representing the client.
-        if (player.playerName === currentPlayer) {
+        if (player.playerID === currentPlayerID) {
             updateMainPlayer(player);      
 
         // We've reached the house.
@@ -264,8 +325,8 @@ function updateMainPlayer(playerObj) {
     updateStatus(playerObj.status, $(".main-status-container"));
     updateCards(playerObj.cards, $(".main-card-container"));
 
-    // If player went bust, hide game inputs since they can no longer hit/stay.
-    if (playerObj.status === "bust") {
+    // If player went bust or stays, hide game inputs since they can no longer hit/stay.
+    if (playerObj.status === "bust" || playerObj.status === "stay") {
         hideGameInputs();
     }
 }
@@ -274,7 +335,7 @@ function updateMainPlayer(playerObj) {
 // update the state of a player on the client.
 function updatePlayer(playerObj) {
     // Player has not been added to client yet.
-    if (!($("div").hasClass(playerObj.playerName))) {
+    if (!($("div").hasClass(playerObj.playerID))) {
 
         // Assigns player next available slot in client interface.
         let pSlotString = "player-" + nextVacantSlot;
@@ -283,7 +344,7 @@ function updatePlayer(playerObj) {
         let pContainer = $("<div></div>");
         pContainer.addClass("player-container");
         pContainer.addClass(pSlotString);
-        pContainer.addClass(playerObj.playerName);
+        pContainer.addClass(playerObj.playerID);
 
         // Creating status bar.
         let statusBar = $("<div></div>");
