@@ -16,7 +16,7 @@
     try {
         // app.use(morgan('dev'));
         app.use(express.json());
-        app.use(routes)
+        app.use(routes);
        
     //    let connection = await amqp.connect(mqURL);
     //    let msgqChannel = await connection.createChannel();

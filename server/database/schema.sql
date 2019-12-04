@@ -5,13 +5,8 @@ create table if not exists Users (
     username varchar(255) unique not null,
     first_name varchar(64) not null,
     last_name varchar(128) not null, 
-    chips int not null default 0
-);
-
-create table if not exists Users_Cards (
-    id int not null auto_increment primary key,
-    player_id int foreign key references Users(id),
-    card_id int foreign key references Cards(id)
+    chips int not null default 0,
+    `status` varchar(254)
 );
 
 create table if not exists Games (
@@ -21,10 +16,12 @@ create table if not exists Games (
 
 create table if not exists Games_Players (
     id int not null auto_increment primary key,
-    game_id int foreign key references Games(id),
-    player_id int foreign key references Users(id),
+    game_id int not null,
+    player_id int not null,
     `status` varchar(64) not null,
-    hand_value int default 0
+    hand_value int default 0,
+    foreign key (`game_id`) references `Games`(`id`) on delete cascade,
+    foreign key (`player_id`) references `Users`(`id`) on delete cascade
 );
 
 create table if not exists Cards (
@@ -32,6 +29,14 @@ create table if not exists Cards (
     card_name varchar(255) unique not null,
     card_value varchar(255) not null,
     card_suit varchar(255) not null
+);
+
+create table if not exists Users_Cards (
+    id int not null auto_increment primary key,
+    player_id int not null, 
+    card_id int not null, 
+    foreign key (`player_id`) references `Users`(`id`) on delete cascade,
+    foreign key (`card_id`) references `Cards`(`id`) on delete cascade
 );
 
 create table if not exists Rooms (
@@ -42,8 +47,9 @@ create table if not exists Rooms (
 
 create table if not exists Messages(
     id int NOT NULL AUTO_INCREMENT PRIMARY KEY, 
-    game_id int foreign key references Games(id), 
-    body TEXT(65535)
+    game_id int not null,
+    body TEXT(65535),
+    foreign key (game_id) references Games(id) on delete cascade 
 );
 
 INSERT INTO Users (id, email, passhash, username, first_name, last_name, `status`, chips) VALUES
