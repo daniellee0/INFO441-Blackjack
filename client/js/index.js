@@ -115,6 +115,7 @@ const URL_BASE = "wws://"
 // This is the ID of the player who is on the client. Should be given
 // by the server rather than pre-assigned.
 var currentPlayerID = "1";
+var currentGameID = "0";
 
 // Tracks the next available slot in the client for the next player to join
 // on (MAX 6 SLOTS). Note that this value starts at 2, since the current user
@@ -138,7 +139,8 @@ socket.onmessage = function (event) {
     let msg = JSON.parse(event.data);
     switch(msg.type) {
         case "register":
-            currentPlayerID = msg.id;
+            currentPlayerID = msg.playerID;
+            currentGameID = msg.gameID;
         case "logMessage":
             addTextToLog(msg.text);
         case "chatMessage":
@@ -146,10 +148,10 @@ socket.onmessage = function (event) {
         case "update":
             updateGameState(msg.gameState);
             updateAllPlayers(msg.players);
-        // Probably indicates some error has occurred.
         case "error":
             hideGameInputs();
             addTextToLog(msg.text);
+        // Probably indicates some error has occurred.
         default:
             hideGameInputs();
             addTextToLog("ERROR! Something has gone wrong!");
@@ -161,7 +163,8 @@ $(window).unload(function() {
     let unregisterRequest = {
         type: "unregister",
         text: "none",
-        id: currentPlayerID
+        gameID: currentGameID,
+        playerID: currentPlayerID
     }
 
     socket.send(JSON.stringify(unregisterRequest));
@@ -208,7 +211,8 @@ function startGame() {
     let startRequest = {
         type: "startGame",
         text: "none",
-        id: currentPlayerID
+        gameID: currentGameID,
+        playerID: currentPlayerID
     }
     
     socket.send(JSON.stringify(startRequest));
@@ -220,7 +224,8 @@ function bet(amount) {
     let betRequest = {
         type: "bet",
         text: amount,
-        id: currentPlayerID
+        gameID: currentGameID,
+        playerID: currentPlayerID
     }
 
     socket.send(JSON.stringify(betRequest));
@@ -232,7 +237,8 @@ function hit() {
     let hitRequest = {
         type: "hit",
         text: "none",
-        id: currentPlayerID
+        gameID: currentGameID,
+        playerID: currentPlayerID
     }
 
     socket.send(JSON.stringify(hitRequest));
@@ -244,7 +250,8 @@ function stay() {
     let stayRequest = {
         type: "stay",
         text: "none",
-        id: currentPlayerID
+        gameID: currentGameID,
+        playerID: currentPlayerID
     }
 
     socket.send(JSON.stringify(stayRequest));
@@ -256,7 +263,8 @@ function sendChat(text) {
     let chatRequest = {
         type: "chat",
         text: text,
-        id: currentPlayerID
+        gameID: currentGameID,
+        playerID: currentPlayerID
     }
 
     socket.send(JSON.stringify(chatRequest));
