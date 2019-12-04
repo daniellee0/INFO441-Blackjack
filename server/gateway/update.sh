@@ -1,25 +1,26 @@
 docker rm -f gateway
 
-docker pull donloby/assignments-daniellee0
+docker pull donloby/blackjackgateway
 
 # make sure TLSCERT and TLSKEY exports are set
-export TLSCERT=/etc/letsencrypt/live/api.oddgarden.xyz/fullchain.pem
-export TLSKEY=/etc/letsencrypt/live/api.oddgarden.xyz/privkey.pem
+export TLSCERT=/etc/letsencrypt/live/api.raffisy.com/fullchain.pem
+export TLSKEY=/etc/letsencrypt/live/api.raffisy.com/privkey.pem
 
-export REDISADDR="inforedis:6379"
-export MESSAGEADDR="http://messaging:8000"
-export SUMMARYADDR="http://summary:8001"
-export DSN="root:password@tcp(infomysql)/infomysqldb"
+export REDISADDR="blackjackredis:6379"
+export CHATADDR="http://chat:8000"
+export GAMEADDR="http://game:8002"
+export AUTHENTICATIONADDR="http://authentication:8001"
+export DSN="root:password@tcp(blackjackmysql)/blackjackmysqldb"
 export SESSIONKEY="sessionkey"
 export RABBITADDR="rabbit:5672"
 export RABBITQUEUENAME="queue"
 
 
-docker network create info441assignments
+docker network create blackjack
 
 docker run -d \
 --name gateway \
---network info441assignments \
+--network blackjack \
 -p 443:443 \
 -v /etc/letsencrypt:/etc/letsencrypt:ro \
 -e TLSCERT=$TLSCERT \
@@ -32,6 +33,6 @@ docker run -d \
 -e RABBITADDR=$RABBITADDR \
 -e RABBITQUEUENAME=$RABBITQUEUENAME \
 --restart unless-stopped \
-donloby/assignments-daniellee0
+donloby/blackjackgateway
 
 exit

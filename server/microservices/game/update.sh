@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # Remove any instance of admin microservice
-docker rm -f chat
+docker rm -f game
 
-docker rmi -f donloby/chat:latest
+docker rmi -f donloby/game:latest
 
 #Pull from DockerHub
-docker pull donloby/chat:latest
+docker pull donloby/game:latest
 
-docker rm -f chat
+docker rm -f game
 
 
 # Export environment variables
-export ADDR=":8000"
+export ADDR=":8002"
 export MYSQL_HOST="blackjackmysql"
 export MYSQL_ROOT_PASSWORD="password" 
 export MYSQL_USER="root"
@@ -19,7 +19,7 @@ export MYSQL_DATABASE="blackjackmysqldb"
 
 # Run microservice
 docker run -td \
-    --name chat \
+    --name game \
     --network blackjack \
     -e ADDR=$ADDR \
     -e MYSQL_HOST=$MYSQL_HOST \
