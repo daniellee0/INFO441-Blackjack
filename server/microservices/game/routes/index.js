@@ -71,6 +71,8 @@ app.route('/v1/Games/Users/bet')
             let q = 'SELECT * FROM Users u \
              JOIN Games_Players gp ON u.id = gp.player_id \
              JOIN Games g ON g.id = gp.game_id \
+             JOIN Users_Cards uc ON  u.id = uc.player_id \
+             JOIN Cards c ON c.id = uc.card_id \
              WHERE u.id = ? AND g.ID = ? '
 
              connection.query(q, [userid, gameid], (err, results) => {
@@ -82,14 +84,12 @@ app.route('/v1/Games/Users/bet')
                     playerID: results[0].id,
                     status: results[0].status,
                     chips: results[0].chips,
-                    cards: ["2S", "AH"] //TODO: 
+                    cards: results[0].card_name
                 }
                 res.set("Content-Type", "application/json");
                 res.json(status);
              })
-
-        }
-        
+        }    
 })
 
 app.route('/v1/Games/Users/stand')
@@ -106,9 +106,12 @@ app.route('/v1/Games/Users/stand')
             });
 
             let q = 'SELECT * FROM Users u \
-             JOIN Games_Players gp ON u.id = gp.player_id \
-             JOIN Games g ON g.id = gp.game_id \
-             WHERE u.id = ? AND g.ID = ? '
+            JOIN Games_Players gp ON u.id = gp.player_id \
+            JOIN Games g ON g.id = gp.game_id \
+            JOIN Users_Cards uc ON  u.id = uc.player_id \
+            JOIN Cards c ON c.id = uc.card_id \
+            WHERE u.id = ? AND g.ID = ? '
+
              connection.query(q, [userid, gameid], (err, results) => {
                 if(err) return res.status(400).send("Bad request");
                 let status = {};
@@ -118,7 +121,7 @@ app.route('/v1/Games/Users/stand')
                     playerID: results[0].id,
                     status: results[0].status,
                     chips: results[0].chips,
-                    cards: ["2S", "AH"] //TODO: 
+                    cards: results[0].card_name
                 }
                 res.set("Content-Type", "application/json");
                 res.json(status);
@@ -126,6 +129,34 @@ app.route('/v1/Games/Users/stand')
 
         }
     })
+
+function randomCard(){
+    return new Promise((reject, resolve) =>{
+        let r = 'select round(rand() * 51)'
+        connection.query('SELECT * FROM CARDS WHERE id = ?', r, (err, results) =>{
+            if(results == undefined){
+                reject(err)
+            } else{
+                resolve(results[0])
+            }
+        })
+    })
+}
+
+function getCurrentHand(id){
+    return new Promise((reject, resolve) => {
+        connection.query('SELECT * FROM Games_Players WHERE player_id  = ?', id, (err, results) =>{
+            if(results == undefined){
+                reject(err)
+            } else{
+                resolve(results[0])
+            }
+        })
+
+    })
+}
+
+
 
 app.route('/v1/Games/Users/hit')
     .patch((req, res) =>{
@@ -139,7 +170,42 @@ app.route('/v1/Games/Users/hit')
             connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [game_state, gameid], (err, results) =>{
                 if(err) return res.status(400).send("Bad request");
             });
+            randomCard().then((value) =>{
+                let val = value.card_value;
+                connection.query('INSERT INTO Users_Cards (player_id, card_id) VALUES (?, ?)', [userid, value.id], (err, results) =>{
+                    if(err) return res.status(400).send("Bad request");
+                });
+                getCurrentHand(userid).then((value) =>{
+                    let oldVal = value.hand_value;
+                    let newVal = val + oldVal;
+                    connection.query('UPDATE Games_Players SET hand_value = ? WHERE player_id = ?', [newVal, userid], (err, results)=>{
+                        if(err) return res.status(400).send("Bad request");
+                    })
+                })
+              
+            });
 
+            let q = 'SELECT * FROM Users u \
+            JOIN Games_Players gp ON u.id = gp.player_id \
+            JOIN Games g ON g.id = gp.game_id \
+            JOIN Users_Cards uc ON  u.id = uc.player_id \
+            JOIN Cards c ON c.id = uc.card_id \
+            WHERE u.id = ? AND g.ID = ? '
+
+             connection.query(q, [userid, gameid], (err, results) => {
+                if(err) return res.status(400).send("Bad request");
+                let status = {};
+                status[gameState] = results[0].game_state,
+                status[players] = {
+                    playerName: results[0].first_name,
+                    playerID: results[0].id,
+                    status: results[0].status,
+                    chips: results[0].chips,
+                    cards: results[0].card_name
+                }
+                res.set("Content-Type", "application/json");
+                res.json(status);
+             })
         }
     })
 
