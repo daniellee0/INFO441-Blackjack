@@ -12,80 +12,102 @@ let connection = mysql.createConnection({
 
 
 app.route('/v1/Users/register')
-  .post((req, res) =>{
-    
+  .patch((req, res) =>{
+    if(!req.get('X-User')) {
+        res.status(401).send("Unauthorized");	
+        return;
+    } 
+    let authid = JSON.parse(req.get('X-User')).id;
+    let userid = req.params.userid;
+    if( authid != userid){
+        res.status(401).send("Unauthorized");
+    }
    if (req.body.name == undefined  || req.body.name.length <= 1) {
         res.status(400).send("Bad request")
    } else{
-        const user = {
-            name : req.body.name,
-            status: req.body.status,
-            chips: req.body.chips,
-            cards: req.body.cards.toString()
-        }
-
-        connection.query('INSERT INTO Users SET ?', user, (err, results) =>{
+        connection.query('UPDATE Users SET status = ? WHERE id = ?)', ["ready", userid], (err, results) =>{
+            if(err)res.status(400).send("Bad request");
             res.status(201).send("Player registered")
         });
     }
     
   });
 
-app.route('/v1/Users/:playerName/unregister')
+app.route('/v1/Users/:userid/unregister')
     .delete((req, res) =>{
-        let name = req.params.playerName;
-        connection.query('DELETE FROM Users WHERE name = ?', name, (err, results) =>{
+        if(!req.get('X-User')) {
+            res.status(401).send("Unauthorized");	
+            return;
+        } 
+        let authid = JSON.parse(req.get('X-User')).id;
+        let userid = req.params.userid;
+        if( authid != userid){
+            res.status(401).send("Unauthorized");
+        }
+        connection.query('DELETE FROM Users WHERE id = ?', userid, (err, results) =>{
             if(err)res.status(400).send("Bad request");
             res.status(201).send("Player Unregistered");
         });
 });
 
-function getPlayer(name){
-    return new Promise((resolve, reject) => {
-        connection.query('SELECT * FROM Users WHERE name = ?', name, (err, results) =>{
-            console.log(results)
+
+
+// get player using gameid
+// update bet amount
+// respond with new player obj
+
+function getPlayer(gid, uid){
+    return new promise ((rejest, resolve) =>{
+        let q = 'SELECT * FROM Users INNER JOIN Games_Players ON Users.id = Games_Players.player_id INNER JOIN Games ON Games_Players.game_id = Games.id WHERE Games.id = ? AND Users.id = ? '
+        connection.query(q, [gid, uid], (err, results) =>{
             if(results === undefined){
-                reject(new Error("Error row is undefined"));
+                reject(err);
             }else{
                 resolve(results[0]);
             }
+
         })
-    })
+
+    });
 }
 
-function updatePlayer(name, amount){
-    return new Promise((resolve, reject) =>{
-        connection.query('UPDATE Users SET chips = ? WHERE name = ?', [amount, name], (err, results) =>{
-            if(err != null){
-                reject(new Error("Error row is undefined"));
-            }else{
-                resolve(results[0]);
-            }
-        })
+
+
+app.route('/v1/Games/:gameid/Users/:userid/bet')
+    .get((req, res) => {
+        let authid = JSON.parse(req.get('X-User')).id;
+        let userid = req.params.userid;
+        let gameid = req.params.gameid;
+        if( authid != userid){
+            res.status(401).send("Unauthorized");
+        }
+        getPlayer(gameid, userid).then((value) => {
+            res.setHeader("Content-Type", "application/json");
+            res.status(201).json(value);
+        }); 
     })
-}
-app.route('/v1/Users/:playerName/:bet')
-    // .patch((req, res) =>{
-    //     let name = req.params.playerName;
-    //     // let amount = req.params.bet;
-    //     getPlayer(name).then ((value) =>{
-    //             if(value == undefined){
-    //                 res.status(400).send("Bad request");
-    //             } else {
-    //                 console.log(value);
-    //                 let amount = value.chips - req.params.bet;
-    //                 updatePlayer(name, amount).then(() =>{
-    //                     console.log("updated")
-    //                 })
-
-    //             }
-                
-    //         })
-        
-        
-    // })
-
+    .patch((req, res) =>{
+        let authid = JSON.parse(req.get('X-User')).id;
+        let userid = req.params.userid;
+        let gameid = req.params.gameid;
+        let betAmount = 0;
+        if( authid != userid){
+            res.status(401).send("Unauthorized");
+        }
+        getPlayer(gameid, userid).then((value) => {
+            betAmount = value.chips - req.body.bet;
+            let q = 'UPDATE USERS INNER JOIN Games_Players ON Users.id = Games_Players.player_id INNER JOIN Games ON Games_Players.game_id = Games.id WHERE Games.id = ? AND Users.id = ? SET Users.chips = ?'
+            connection.query(q, [gameid, userid, betAmount], (err, results) =>{
+                if(err) return res.status(401).send("Bad Request");
+            });
+        });
+        getPlayer(gameid, userid).then((value) => {
+            res.setHeader("Content-Type", "application/json");
+            res.status(201).json(value);
+        });       
+})
 
 
 
-  module.exports = app
+
+  module.exports = app;
