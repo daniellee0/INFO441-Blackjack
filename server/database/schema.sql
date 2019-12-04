@@ -2,8 +2,8 @@ create table if not exists Users (
     id int not null auto_increment primary key,
     `name` varchar(255) unique not null,
     `status` varchar(64) not null,
-    chips int not null,
-    cards varchar(255) not null
+    chips int not null default 0,
+    cards varchar(255)
 );
 
 create table if not exists Games (
@@ -27,13 +27,12 @@ create table if not exists Cards (
 create table if not exists Rooms (
     id int not null AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255), 
-    `description` TEXT(65535),
-    members JSON NOT NULL
+    `description` TEXT(65535)
 );
 
 create table if not exists Messages(
     id int NOT NULL AUTO_INCREMENT PRIMARY KEY, 
-    room_id INT, 
+    game_id int foreign key references Games(id), 
     body TEXT(65535)
 );
 
