@@ -10,20 +10,20 @@ create table if not exists Users (
 create table if not exists Games (
     id int not null auto_increment primary key,
     game_state varchar(255) not null
-)
+);
 
 create table if not exists Games_Players (
     id int not null auto_increment primary key,
     game_id int foreign key references Games(id),
     player_id int foreign key references Users(id)
-)
+);
 
 create table if not exists Cards (
     id int not null auto_increment primary key,
     card_name varchar(255) unique not null,
     card_value varchar(255) not null,
     card_suit varchar(255) not null
-)
+);
 
 create table if not exists Rooms (
     id int not null AUTO_INCREMENT PRIMARY KEY,
