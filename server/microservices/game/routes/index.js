@@ -10,6 +10,8 @@ let connection = mysql.createConnection({
     database : "blackjack"
   });
 
+const status = {};
+
 
 app.route('/v1/Users/register')
   .patch((req, res) =>{
@@ -49,6 +51,27 @@ app.route('/v1/Users/:userid/unregister')
        
 });
 
+function getGameState(userid, gameid){
+    return new Promise((reject, resolve) =>{
+        let q = 'SELECT * FROM Users u \
+        JOIN Games_Players gp ON u.id = gp.player_id \
+        JOIN Games g ON g.id = gp.game_id \
+        JOIN Users_Cards uc ON  u.id = uc.player_id \
+        JOIN Cards c ON c.id = uc.card_id \
+        WHERE u.id = ? AND g.ID = ? '
+
+        connection.query(q, [userid, gameid], (err, results) => {
+            if(results == undefined){
+                reject(err)
+            } else{
+                resolve(results[0])
+            }
+
+        });
+    });
+  
+}
+
 
 app.route('/v1/Games/Users/bet')
     .patch((req, res) =>{
@@ -68,27 +91,19 @@ app.route('/v1/Games/Users/bet')
                 if(err) return res.status(400).send("Bad request");
             });
 
-            let q = 'SELECT * FROM Users u \
-             JOIN Games_Players gp ON u.id = gp.player_id \
-             JOIN Games g ON g.id = gp.game_id \
-             JOIN Users_Cards uc ON  u.id = uc.player_id \
-             JOIN Cards c ON c.id = uc.card_id \
-             WHERE u.id = ? AND g.ID = ? '
-
-             connection.query(q, [userid, gameid], (err, results) => {
-                if(err) return res.status(400).send("Bad request");
-                let status = {};
-                status[gameState] = results[0].game_state,
+           getGameState(userid, gameid).then((value)=>{
+                status[gameState] = value.game_state,
                 status[players] = {
-                    playerName: results[0].first_name,
-                    playerID: results[0].id,
-                    status: results[0].status,
-                    chips: results[0].chips,
-                    cards: results[0].card_name
+                    playerName: value.first_name,
+                    playerID: value.id,
+                    status: value.status,
+                    chips: value.chips,
+                    cards: value.card_name
                 }
                 res.set("Content-Type", "application/json");
                 res.json(status);
-             })
+           });
+
         }    
 })
 
@@ -105,27 +120,18 @@ app.route('/v1/Games/Users/stand')
                 if(err) return res.status(400).send("Bad request");
             });
 
-            let q = 'SELECT * FROM Users u \
-            JOIN Games_Players gp ON u.id = gp.player_id \
-            JOIN Games g ON g.id = gp.game_id \
-            JOIN Users_Cards uc ON  u.id = uc.player_id \
-            JOIN Cards c ON c.id = uc.card_id \
-            WHERE u.id = ? AND g.ID = ? '
-
-             connection.query(q, [userid, gameid], (err, results) => {
-                if(err) return res.status(400).send("Bad request");
-                let status = {};
-                status[gameState] = results[0].game_state,
+            getGameState(userid, gameid).then((value)=>{
+                status[gameState] = value.game_state,
                 status[players] = {
-                    playerName: results[0].first_name,
-                    playerID: results[0].id,
-                    status: results[0].status,
-                    chips: results[0].chips,
-                    cards: results[0].card_name
+                    playerName: value.first_name,
+                    playerID: value.id,
+                    status: value.status,
+                    chips: value.chips,
+                    cards: value.card_name
                 }
                 res.set("Content-Type", "application/json");
                 res.json(status);
-             })
+           });
 
         }
     })
@@ -185,31 +191,20 @@ app.route('/v1/Games/Users/hit')
               
             });
 
-            let q = 'SELECT * FROM Users u \
-            JOIN Games_Players gp ON u.id = gp.player_id \
-            JOIN Games g ON g.id = gp.game_id \
-            JOIN Users_Cards uc ON  u.id = uc.player_id \
-            JOIN Cards c ON c.id = uc.card_id \
-            WHERE u.id = ? AND g.ID = ? '
-
-             connection.query(q, [userid, gameid], (err, results) => {
-                if(err) return res.status(400).send("Bad request");
-                let status = {};
-                status[gameState] = results[0].game_state,
+            getGameState(userid, gameid).then((value)=>{
+                status[gameState] = value.game_state,
                 status[players] = {
-                    playerName: results[0].first_name,
-                    playerID: results[0].id,
-                    status: results[0].status,
-                    chips: results[0].chips,
-                    cards: results[0].card_name
+                    playerName: value.first_name,
+                    playerID: value.id,
+                    status: value.status,
+                    chips: value.chips,
+                    cards: value.card_name
                 }
                 res.set("Content-Type", "application/json");
                 res.json(status);
-             })
+           });
         }
     })
-
-
 
 
   module.exports = app;
