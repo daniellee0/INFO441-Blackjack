@@ -146,6 +146,13 @@ socket.onmessage = function (event) {
         case "update":
             updateGameState(msg.gameState);
             updateAllPlayers(msg.players);
+        // Probably indicates some error has occurred.
+        case "error":
+            hideGameInputs();
+            addTextToLog(msg.text);
+        default:
+            hideGameInputs();
+            addTextToLog("ERROR! Something has gone wrong!");
     }
 }
 
