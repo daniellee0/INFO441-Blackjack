@@ -1,0 +1,1 @@
+ssh ec2-user@api.raffisy.com 'bash -s' < deploy_redis.sh
