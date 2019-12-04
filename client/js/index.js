@@ -235,7 +235,7 @@ function hit() {
 // that the player would like to stay.
 function stay() {
     let stayRequest = {
-        type: "hit",
+        type: "stay",
         text: "none",
         id: currentPlayerID
     }
