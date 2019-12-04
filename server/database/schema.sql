@@ -12,7 +12,7 @@ create table if not exists Users_Cards (
     id int not null auto_increment primary key,
     player_id int foreign key references Users(id),
     card_id int foreign key references Cards(id)
-)
+);
 
 create table if not exists Games (
     id int not null auto_increment primary key,
