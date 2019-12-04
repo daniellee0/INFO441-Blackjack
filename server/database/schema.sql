@@ -3,7 +3,8 @@ create table if not exists Users (
     `name` varchar(255) unique not null,
     `status` varchar(64) not null,
     chips int not null default 0,
-    cards varchar(255)
+    card1_id int foreign key references Cards(id),
+    card2_id int foreign key references Cards(id)
 );
 
 create table if not exists Games (
