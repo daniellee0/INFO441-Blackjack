@@ -110,11 +110,15 @@ const EXAMPLE_GAME_STATE = {
     ]
 }
 
-const URL_BASE = "wws://"
+// URL used for XMLHttp POST request to register user.
+const REGISTER_URL = "/v1/Users/register"
+
+// URL used for connecting to websocket
+const WEBSOCKET_URL = "wss://"
 
 // This is the ID of the player who is on the client. Should be given
 // by the server rather than pre-assigned.
-var currentPlayerID = "1";
+var currentPlayerID = "0";
 var currentGameID = "0";
 
 // Tracks the next available slot in the client for the next player to join
@@ -124,50 +128,29 @@ var nextVacantSlot = 2;
 
 // ASSIGNING EVENT HANDLERS ---------------------------
 
-var socket = new WebSocket(URL_BASE);
+var socket;
 
-socket.onopen = function (event) {
-    let registerRequest = {
-        type: "register",
-        text: "none"
+$(".login-button").click(function() {
+    let playerName = $(".login-input").val();
+    if (playerName.length < 1) {
+        window.alert("Please put in a player name!");
+    } else {
+        $(".login-container").addClass("hidden");
+        $(".game-container").removeClass("hidden");
+
+        // Make POST request to register here.
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', REGISTER_URL, true);
+        xhr.onreadystatechange = function () {
+            if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                connectToSocket();
+            } else {
+                window.alert(xhr.status);
+            }
+        };
+        // Send over player name to server.
+        xhr.send(playerName);
     }
-
-    socket.send(JSON.stringify(registerRequest));
-}
-
-socket.onmessage = function (event) {
-    let msg = JSON.parse(event.data);
-    switch(msg.type) {
-        case "register":
-            currentPlayerID = msg.playerID;
-            currentGameID = msg.gameID;
-        case "logMessage":
-            addTextToLog(msg.text);
-        case "chatMessage":
-            addTextToChat(msg.text);
-        case "update":
-            updateGameState(msg.gameState);
-            updateAllPlayers(msg.players);
-        case "error":
-            hideGameInputs();
-            addTextToLog(msg.text);
-        // Probably indicates some error has occurred.
-        default:
-            hideGameInputs();
-            addTextToLog("ERROR! Something has gone wrong!");
-    }
-}
-
-// Unregister client user if they close window.
-$(window).unload(function() {
-    let unregisterRequest = {
-        type: "unregister",
-        text: "none",
-        gameID: currentGameID,
-        playerID: currentPlayerID
-    }
-
-    socket.send(JSON.stringify(unregisterRequest));
 });
 
 $(".start-button").click(function() {
@@ -204,6 +187,55 @@ $(".submit-button").click(function() {
 });
 
 // FUNCTIONS ------------------------------------------
+
+function connectToSocket() {
+    socket = new WebSocket(URL_BASE);
+
+    socket.onopen = function (event) {
+        let registerRequest = {
+            type: "register",
+            text: "none"
+        }
+    
+        socket.send(JSON.stringify(registerRequest));
+    }
+    
+    socket.onmessage = function (event) {
+        let msg = JSON.parse(event.data);
+        switch(msg.type) {
+            case "register":
+                currentPlayerID = msg.playerID;
+                currentGameID = msg.gameID;
+            case "logMessage":
+                addTextToLog(msg.text);
+            case "chatMessage":
+                addTextToChat(msg.text);
+            case "update":
+                updateGameState(msg.gameState);
+                updateAllPlayers(msg.players);
+            case "error":
+                hideGameInputs();
+                addTextToLog(msg.text);
+            // Probably indicates some error has occurred.
+            default:
+                hideGameInputs();
+                addTextToLog("ERROR! Something has gone wrong!");
+        }
+    }
+    
+    // Unregister client user if they close window.
+    $(window).unload(function() {
+        let unregisterRequest = {
+            type: "unregister",
+            text: "none",
+            gameID: currentGameID,
+            playerID: currentPlayerID
+        }
+    
+        socket.send(JSON.stringify(unregisterRequest));
+    });
+    
+}
 
 // This function will send a request to the websocket connection
 // confirming that the player is ready to start the game.
