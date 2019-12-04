@@ -49,7 +49,6 @@ func main(){
 		/v1/Users/register
 		/v1/Users/{userid}/unregister
 		/v1/Games/{gameid}/Users/{userid}/bet
-		v1/Games/{gameid}/Users/{userid}/deal
 		/v1/Games/{gameid}/Users/{userid}/hit
 		/v1/Games/{gameid}/Users/{userid}/stand
 	*/
