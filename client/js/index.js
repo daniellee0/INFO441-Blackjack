@@ -112,7 +112,7 @@ const EXAMPLE_GAME_STATE = {
 
 const URL_BASE = "wws://"
 
-// This is the name of the player who is on the client. Should be given
+// This is the ID of the player who is on the client. Should be given
 // by the server rather than pre-assigned.
 var currentPlayerID = "1";
 
