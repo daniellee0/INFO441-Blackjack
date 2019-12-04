@@ -1,11 +1,18 @@
 create table if not exists Users (
     id int not null auto_increment primary key,
-    `name` varchar(255) unique not null,
-    `status` varchar(64) not null,
-    chips int not null default 0,
-    card1_id int foreign key references Cards(id),
-    card2_id int foreign key references Cards(id)
+    email varchar(254) unique not null,
+    passhash varchar(60) not null, 
+    username varchar(255) unique not null,
+    first_name varchar(64) not null,
+    last_name varchar(128) not null, 
+    chips int not null default 0
 );
+
+create table if not exists Users_Cards (
+    id int not null auto_increment primary key,
+    player_id int foreign key references Users(id),
+    card_id int foreign key references Cards(id)
+)
 
 create table if not exists Games (
     id int not null auto_increment primary key,
@@ -15,7 +22,9 @@ create table if not exists Games (
 create table if not exists Games_Players (
     id int not null auto_increment primary key,
     game_id int foreign key references Games(id),
-    player_id int foreign key references Users(id)
+    player_id int foreign key references Users(id),
+    `status` varchar(64) not null,
+    hand_value int default 0
 );
 
 create table if not exists Cards (
@@ -36,6 +45,9 @@ create table if not exists Messages(
     game_id int foreign key references Games(id), 
     body TEXT(65535)
 );
+
+INSERT INTO Users (id, email, passhash, username, first_name, last_name, `status`, chips) VALUES
+    (1, "email@email.com", "passhash", "House", "House", "House", "hit", 100);
 
 INSERT INTO Cards (id, card_name, card_value, card_suit) VALUES 
     (1, "AH", "A", "Hearts"),
