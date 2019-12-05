@@ -2,18 +2,13 @@ package users
 
 import (
 	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"net/mail"
 	"strings"
 	"unicode/utf8"
-	
+
 	"golang.org/x/crypto/bcrypt"
 )
-
-//gravatarBasePhotoURL is the base URL for Gravatar image requests.
-//See https://id.gravatar.com/site/implement/images/ for details
-const gravatarBasePhotoURL = "https://www.gravatar.com/avatar/"
 
 //bcryptCost is the default bcrypt cost to use when hashing passwords
 var bcryptCost = 13
@@ -26,7 +21,6 @@ type User struct {
 	UserName  string `json:"userName"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
-	PhotoURL  string `json:"photoURL"`
 }
 
 //Credentials represents user sign-in credentials
@@ -77,23 +71,8 @@ func (nu *NewUser) Validate() error {
 	return nil
 }
 
-//ToUser converts the NewUser to a User, setting the
-//PhotoURL and PassHash fields appropriately
+//ToUser converts the NewUser to a User
 func (nu *NewUser) ToUser() (*User, error) {
-	//TODO: call Validate() to validate the NewUser and
-	//return any validation errors that may occur.
-	//if valid, create a new *User and set the fields
-	//based on the field values in `nu`.
-	//Leave the ID field as the zero-value; your Store
-	//implementation will set that field to the DBMS-assigned
-	//primary key value.
-	//Set the PhotoURL field to the Gravatar PhotoURL
-	//for the user's email address.
-	//see https://en.gravatar.com/site/implement/hash/
-	//and https://en.gravatar.com/site/implement/images/
-
-	//TODO: also call .SetPassword() to set the PassHash
-	//field of the User to a hash of the NewUser.Password
 	err := nu.Validate()
 	if err != nil {
 		return nil, err
@@ -101,9 +80,8 @@ func (nu *NewUser) ToUser() (*User, error) {
 	e, _ := mail.ParseAddress(nu.Email)
 	hasher := md5.New()
 	hasher.Write([]byte(strings.ToLower(strings.Trim(e.Address, " "))))
-	photoURLHash := hex.EncodeToString(hasher.Sum(nil))
 	user := &User{Email: nu.Email, UserName: nu.UserName, FirstName: nu.FirstName,
-		LastName: nu.LastName, PhotoURL: gravatarBasePhotoURL + photoURLHash}
+		LastName: nu.LastName}
 	passErr := user.SetPassword(nu.Password)
 	if passErr != nil {
 		return nil, passErr
@@ -143,9 +121,6 @@ func (u *User) SetPassword(password string) error {
 //Authenticate compares the plaintext password against the stored hash
 //and returns an error if they don't match, or nil if they do
 func (u *User) Authenticate(password string) error {
-	//TODO: use the bcrypt package to compare the supplied
-	//password with the stored PassHash
-	//https://godoc.org/golang.org/x/crypto/bcrypt
 	if password == "" {
 		return errors.New("Invalid password")
 	}

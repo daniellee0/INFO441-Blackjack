@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strconv"
-	"strings"
 
 	_ "github.com/go-sql-driver/mysql" //sql driver
 )
@@ -31,7 +29,7 @@ func (store *dbStore) GetByID(id int64) (*users.User, error) {
 	rows := store.DB.QueryRow("SELECT * FROM Users WHERE id=?", id)
 
 	if err := rows.Scan(&c.ID, &c.Email, &c.PassHash, &c.UserName,
-		&c.FirstName, &c.LastName, &c.PhotoURL); err != nil {
+		&c.FirstName, &c.LastName); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("%s", "User not found")
 		}
@@ -51,7 +49,7 @@ func (store *dbStore) GetByEmail(email string) (*users.User, error) {
 	c := users.User{}
 	for rows.Next() {
 		if err := rows.Scan(&c.ID, &c.Email, &c.PassHash, &c.UserName,
-			&c.FirstName, &c.LastName, &c.PhotoURL); err != nil {
+			&c.FirstName, &c.LastName); err != nil {
 			fmt.Printf("error scanning row: %v\n", err)
 		}
 	}
@@ -68,7 +66,7 @@ func (store *dbStore) GetByUserName(username string) (*users.User, error) {
 	c := users.User{}
 	for rows.Next() {
 		if err := rows.Scan(&c.ID, &c.Email, &c.PassHash, &c.UserName,
-			&c.FirstName, &c.LastName, &c.PhotoURL); err != nil {
+			&c.FirstName, &c.LastName); err != nil {
 			fmt.Printf("error scanning row: %v\n", err)
 		}
 	}
@@ -87,8 +85,8 @@ func (store *dbStore) Delete(id int64) error {
 // Insert a user into db
 func (store *dbStore) Insert(user *users.User) (*users.User, error) {
 
-	insertRow := "INSERT INTO Users(email, passhash, username, first_name, last_name, photourl) VALUES (?,?,?,?,?,?)"
-	res, e := store.DB.Exec(insertRow, user.Email, string(user.PassHash), user.UserName, user.FirstName, user.LastName, user.PhotoURL)
+	insertRow := "INSERT INTO Users(email, passhash, username, first_name, last_name, chips) VALUES (?,?,?,?,?,?)"
+	res, e := store.DB.Exec(insertRow, user.Email, string(user.PassHash), user.UserName, user.FirstName, user.LastName, 100)
 	if e != nil {
 		return nil, e
 	}
@@ -96,22 +94,22 @@ func (store *dbStore) Insert(user *users.User) (*users.User, error) {
 	// // get ID of success insert
 	id, _ := res.LastInsertId()
 
-	var members string
-	channel := store.DB.QueryRow("SELECT members FROM Channels WHERE id = 1")
+	// var members string
+	// channel := store.DB.QueryRow("SELECT members FROM Channels WHERE id = 1")
 
-	e = channel.Scan(&members)
-	if e != nil {
-		return nil, e
-	}
-	split := strings.Split(members, "}")
-	split[0] += ", \"ID" + strconv.FormatInt(id, 10) + "\": " + strconv.FormatInt(id, 10) + "}"
-	updatedUsers := strings.Join(split, "")
+	// e = channel.Scan(&members)
+	// if e != nil {
+	// 	return nil, e
+	// }
+	// split := strings.Split(members, "}")
+	// split[0] += ", \"ID" + strconv.FormatInt(id, 10) + "\": " + strconv.FormatInt(id, 10) + "}"
+	// updatedUsers := strings.Join(split, "")
 
-	insertUser := "UPDATE Channels SET members = ? WHERE id = 1"
-	res, e = store.DB.Exec(insertUser, updatedUsers)
-	if e != nil {
-		return nil, e
-	}
+	// insertUser := "UPDATE Channels SET members = ? WHERE id = 1"
+	// res, e = store.DB.Exec(insertUser, updatedUsers)
+	// if e != nil {
+	// 	return nil, e
+	// }
 	contact, e := store.GetByID(id)
 	return contact, e
 }
