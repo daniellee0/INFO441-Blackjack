@@ -12,56 +12,17 @@ let connection = mysql.createConnection({
 
 const status = {};
 
-
-app.route('/v1/Users/register')
-  .patch((req, res) =>{
-    if(!req.get('X-User')) {
-        res.status(401).send("Unauthorized");	
-        return;
-    } 
-    let aid = JSON.parse(req.get('X-User')).id;
-    let uid = req.body.playerID;
-    if( aid != uid){
-        res.status(401).send("Unauthorized");
-    } else{
-        connection.query('UPDATE Users SET status = ? WHERE id = ?)', ["registered", uid], (err, results) =>{
-            if(err)res.status(400).send("Bad request");
-            res.status(201).send("Player registered")
-        });
-    }
-    
-  });
-
-app.route('/v1/Users/:userid/unregister')
-    .patch((req, res) =>{
-        if(!req.get('X-User')) {
-            res.status(401).send("Unauthorized");	
-            return;
-        } 
-        let authid = JSON.parse(req.get('X-User')).id;
-        let userid = req.body.playerID;
-        if( authid != userid){
-            res.status(401).send("Unauthorized");
-        } else{
-            connection.query('UPDATE Users SET status = ? WHERE id = ?', ["unregisted", userid], (err, results) =>{
-                if(err)res.status(400).send("Bad request");
-                res.status(201).send("Player Unregistered");
-            });
-        }
-       
-});
-
-function getGameState(userid, gameid){
+function getGameState(){
     return new Promise((reject, resolve) =>{
         let q = 'SELECT * FROM Users u \
         JOIN Games_Players gp ON u.id = gp.player_id \
         JOIN Games g ON g.id = gp.game_id \
         JOIN Users_Cards uc ON  u.id = uc.player_id \
-        JOIN Cards c ON c.id = uc.card_id \
-        WHERE u.id = ? AND g.ID = ? '
+        JOIN Cards c ON c.id = uc.card_id'
 
-        connection.query(q, [userid, gameid], (err, results) => {
+        connection.query(q, (err, results) => {
             if(results == undefined){
+                console.log(err)
                 reject(err)
             } else{
                 resolve(results[0])
@@ -71,6 +32,79 @@ function getGameState(userid, gameid){
     });
   
 }
+
+
+app.route('/v1/Users/register')
+  .post((req, res) =>{
+    if(!req.get('X-User')) {
+        res.status(401).send("Unauthorized");	
+        return;
+    } 
+    let aid = JSON.parse(req.get('X-User')).id;
+    let user = {
+
+    }
+    if( aid != uid){
+        res.status(401).send("Unauthorized");
+    } else{
+        connection.query('UPDATE Users SET status = ? WHERE id = ?)', ["registered", uid], (err, results) =>{
+            if(err)res.status(400).send("Bad request");
+        });
+        getGameState(gameid).then((value)=>{
+            status[gameState] = value.game_state,
+            status[players] = {
+                playerName: value.first_name,
+                playerID: value.id,
+                status: value.status,
+                chips: value.chips,
+                cards: value.card_name
+            }
+            res.set("Content-Type", "application/json");
+            res.json(status);
+       }).catch(function(err){
+        console.log("Promise rejection error: "+err);
+        res.status(400).send("Bad request");  
+      })
+
+    }
+    
+  });
+
+app.route('/v1/Users/unregister')
+    .delete((req, res) =>{
+        if(!req.get('X-User')) {
+            res.status(401).send("Unauthorized");	
+            return;
+        } 
+        let authid = JSON.parse(req.get('X-User')).id;
+        let userid = req.body.playerID;
+        let gameid = req.body.gameID;
+        if( authid != userid){
+            res.status(401).send("Unauthorized");
+        } else{
+            connection.query('DELETE FROM Users WHERE id = ?', userid, (err, results) =>{
+                if(err)res.status(400).send("Bad request");
+            });
+            getGameState().then((value)=>{
+                status[gameState] = value.game_state,
+                status[players] = {
+                    playerName: value.first_name,
+                    playerID: value.id,
+                    status: value.status,
+                    chips: value.chips,
+                    cards: value.card_name
+                }
+                res.set("Content-Type", "application/json");
+                res.json(status);
+           }).catch(function(err){
+                console.log("Promise rejection error: "+err);
+                res.status(400).send("Bad request");   
+          })
+        }
+       
+});
+
+
 
 
 app.route('/v1/Games/Users/bet')
@@ -91,7 +125,7 @@ app.route('/v1/Games/Users/bet')
                 if(err) return res.status(400).send("Bad request");
             });
 
-           getGameState(userid, gameid).then((value)=>{
+           getGameState().then((value)=>{
                 status[gameState] = value.game_state,
                 status[players] = {
                     playerName: value.first_name,
@@ -102,7 +136,10 @@ app.route('/v1/Games/Users/bet')
                 }
                 res.set("Content-Type", "application/json");
                 res.json(status);
-           });
+           }).catch(function(err){
+            console.log("Promise rejection error: "+err);
+            res.status(400).send("Bad request");  
+          })
 
         }    
 })
@@ -110,9 +147,10 @@ app.route('/v1/Games/Users/bet')
 app.route('/v1/Games/Users/stand')
     .patch((req, res) => {
         let authid = JSON.parse(req.get('X-User')).id;
-        let userid = req.body.playerID;
-        let gameid = req.body.gameID;
-        let game_state = req.body.type;
+        let data = req.body
+        let userid = data.playerID;
+        let gameid = data.gameID;
+        let game_state = data.type;
         if( authid != userid){
             res.status(401).send("Unauthorized");
         } else {
@@ -120,7 +158,7 @@ app.route('/v1/Games/Users/stand')
                 if(err) return res.status(400).send("Bad request");
             });
 
-            getGameState(userid, gameid).then((value)=>{
+            getGameState().then((value)=>{
                 status[gameState] = value.game_state,
                 status[players] = {
                     playerName: value.first_name,
@@ -131,7 +169,10 @@ app.route('/v1/Games/Users/stand')
                 }
                 res.set("Content-Type", "application/json");
                 res.json(status);
-           });
+           }).catch(function(err){
+            console.log("Promise rejection error: "+err);
+            res.status(400).send("Bad request");  
+          })
 
         }
     })
@@ -191,7 +232,7 @@ app.route('/v1/Games/Users/hit')
               
             });
 
-            getGameState(userid, gameid).then((value)=>{
+            getGameState().then((value)=>{
                 status[gameState] = value.game_state,
                 status[players] = {
                     playerName: value.first_name,
@@ -202,7 +243,10 @@ app.route('/v1/Games/Users/hit')
                 }
                 res.set("Content-Type", "application/json");
                 res.json(status);
-           });
+           }).catch(function(err){
+            console.log("Promise rejection error: "+err);
+            res.status(400).send("Bad request");  
+          })
         }
     })
 
