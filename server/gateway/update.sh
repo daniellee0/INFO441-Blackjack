@@ -1,6 +1,6 @@
 docker rm -f gateway
 
-docker pull donloby/blackjackgateway
+docker pull donloby/gateway
 
 # make sure TLSCERT and TLSKEY exports are set
 export TLSCERT=/etc/letsencrypt/live/api.raffisy.com/fullchain.pem
@@ -33,6 +33,6 @@ docker run -d \
 -e RABBITADDR=$RABBITADDR \
 -e RABBITQUEUENAME=$RABBITQUEUENAME \
 --restart unless-stopped \
-donloby/blackjackgateway
+donloby/gateway
 
 exit
