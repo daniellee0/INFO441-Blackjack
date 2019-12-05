@@ -1,0 +1,24 @@
+{
+    "name": "messaging",
+    "version": "1.0.0",
+    "description": "This directory contains the source code for your messaging microservice",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node app.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "amqplib": "^0.5.5",
+      "body-parser": "^1.19.0",
+      "express": "^4.17.1",
+      "morgan": "^1.9.1",
+      "mysql": "^2.17.1"
+    },
+    "devDependencies": {
+      "nodemon": "^1.19.4"
+    }
+  }
+  

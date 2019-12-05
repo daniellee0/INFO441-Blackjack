@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"assignments-daniellee0/servers/gateway/models/users"
-	"assignments-daniellee0/servers/gateway/sessions"
+	"INFO441-Blackjack/server/gateway/models/users"
+	"INFO441-Blackjack/server/gateway/sessions"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -21,8 +21,8 @@ import (
 //struct as the receiver on these functions so that you have
 //access to things like the session store and user store.
 
-//UsersHandler something something
-func (ctx *HandlerContext) UsersHandler(w http.ResponseWriter, r *http.Request) {
+//SignUpHandler something something
+func (ctx *HandlerContext) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "that method is not allowed", http.StatusMethodNotAllowed)
 		return
@@ -61,7 +61,7 @@ func (ctx *HandlerContext) UsersHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	state := SessionState{time.Now(), addedUser}
+	state := sessions.SessionState{SessionTime: time.Now(), User: addedUser}
 
 	_, err2 := sessions.BeginSession(ctx.SigningKey, ctx.Store, state, w)
 	if err2 != nil {
@@ -87,7 +87,7 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 		http.Error(w, "Session id: current user not authenticated", http.StatusUnauthorized)
 		return
 	}
-	state := &SessionState{}
+	state := &sessions.SessionState{}
 	if _, stateErr := sessions.GetState(r, ctx.SigningKey, ctx.Store, state); stateErr != nil {
 		http.Error(w, fmt.Sprintf("error retrieving session state: %v", stateErr), http.StatusUnauthorized)
 		return
@@ -122,47 +122,6 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 		if err != nil {
 			http.Error(w, "Bad request", http.StatusBadRequest)
 		}
-
-	} else if r.Method == "PATCH" {
-		contentType := r.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			http.Error(w, "request body must be in JSON", http.StatusUnsupportedMediaType)
-		}
-
-		if base != "me" {
-			rID, err2 := strconv.ParseInt(base, 10, 64)
-			if err2 != nil {
-				http.Error(w, "user does not match current user", http.StatusForbidden)
-				return
-			}
-			user, err := ctx.Users.GetByID(rID)
-			if err != nil || user.ID != state.User.ID {
-				http.Error(w, "user does not match current user", http.StatusForbidden)
-				return
-			}
-		}
-
-		userUpdates := &users.Updates{}
-		dec := json.NewDecoder(r.Body)
-		err = dec.Decode(userUpdates)
-		if err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		updatedUser, err := ctx.Users.Update(state.User.ID, userUpdates)
-		if err != nil {
-			fmt.Println("failed")
-			http.Error(w, "Bad request", http.StatusBadRequest)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		err = json.NewEncoder(w).Encode(updatedUser)
-		if err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
-		}
-
 	} else {
 		http.Error(w, "that method is not allowed", http.StatusMethodNotAllowed)
 	}
@@ -199,7 +158,7 @@ func (ctx *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	state := SessionState{time.Now(), user}
+	state := sessions.SessionState{SessionTime: time.Now(), User: user}
 
 	_, err2 := sessions.BeginSession(ctx.SigningKey, ctx.Store, state, w)
 	if err2 != nil {
@@ -243,7 +202,7 @@ func (ctx *HandlerContext) NewServiceProxy(addrs []*url.URL) *httputil.ReversePr
 	mutex := sync.Mutex{}
 	return &httputil.ReverseProxy{
 		Director: func(r *http.Request) {
-			state := &SessionState{}
+			state := &sessions.SessionState{}
 			sessions.GetState(r, ctx.SigningKey, ctx.Store, state)
 			if state.User != nil {
 				userJSON, err := json.Marshal(state.User)

@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"assignments-daniellee0/servers/gateway/models/users"
-	"assignments-daniellee0/servers/gateway/sessions"
+	"INFO441-Blackjack/server/gateway/models/users"
+	"INFO441-Blackjack/server/gateway/sessions"
 )
 
 //TODO: define a handler context struct that

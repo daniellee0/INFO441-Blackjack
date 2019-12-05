@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"assignments-daniellee0/servers/gateway/sessions"
+	"INFO441-Blackjack/server/gateway/sessions"
 	"fmt"
 	"log"
 	"net/http"
@@ -52,7 +52,7 @@ func (ctx *HandlerContext) NewWebSocketHandler(notifier *Notifier) *WebSocketHan
 }
 
 func (websh *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	sessionState := SessionState{}
+	sessionState := sessions.SessionState{}
 	_, err := sessions.GetState(r, websh.ctx.SigningKey, websh.ctx.Store, sessionState)
 	if err != nil {
 		auth := r.URL.Query().Get("auth")

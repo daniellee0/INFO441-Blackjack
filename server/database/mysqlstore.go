@@ -1,7 +1,7 @@
 package db
 
 import (
-	"assignments-daniellee0/servers/gateway/models/users"
+	"INFO441-Blackjack/server/gateway/models/users"
 	"database/sql"
 	"errors"
 	"fmt"
