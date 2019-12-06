@@ -229,6 +229,10 @@ app.route('/v1/Users/unregister')
 
 app.route('/v1/Games/Users/bet')
     .patch((req, res) =>{ 
+        if(!req.get('X-User')) {
+            res.status(401).send("Unauthorized");	
+            return;
+        } 
         let uid = JSON.parse(req.get('X-User')).id;
         let gameid = 1;
         let gs = "betting";
@@ -271,35 +275,148 @@ app.route('/v1/Games/Users/bet')
 
 app.route('/v1/Games/Users/stand')
     .patch((req, res) => {
-        let authid = JSON.parse(req.get('X-User')).id;
-        let data = req.body
-        let userid = data.playerID;
-        let gameid = data.gameID;
-        let game_state = data.type;
-        if( authid != userid){
-            res.status(401).send("Unauthorized");
-        } else {
-            connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [game_state, gameid], (err, results) =>{
-                if(err) return res.status(400).send("Bad request");
-            });
-
+        if(!req.get('X-User')) {
+            res.status(401).send("Unauthorized");	
+            return;
+        } 
+        let uid = JSON.parse(req.get('X-User')).id;
+        // let gameid = 1;
+        let gs = "standing";
+        let count = 0;
+        if(uid == 1){
             getGameState().then((value)=>{
-                status[gameState] = value.game_state,
-                status[players] = {
-                    playerName: value.first_name,
-                    playerID: value.id,
-                    status: value.status,
-                    chips: value.chips,
-                    cards: value.card_name
-                }
-                res.set("Content-Type", "application/json");
-                res.json(status);
-           }).catch(function(err){
+                value.forEach((element) => {
+                    if(!element.status == gs){
+                        console.log("status is" + element.status);
+                        count = count++;
+                        console.log(count);
+                    }  
+                });
+            }).catch(function(err){
             console.log("Promise rejection error: "+err);
             res.status(400).send("Bad request");  
-          })
+            });
+            if(count == 0){
+                // console.log(count);
+                // connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [gs, uid], (err, results) =>{
+                //     if(err) return res.status(400).send("Bad request");
+                   
+                // });
+                // connection.query('UPDATE Games_Players SET status = ? WHERE player_id = ?', [gs, uid], (err, results) =>{
+                //     if(err) return res.status(400).send("Bad request");
+                   
+                // });
 
+                // getCurrentHand(uid).then((value)=>{
+                //     let currentHandValue = value.hand_value;
+                //     if(currentHandValue >= 17){
+                //         getGameState().then((value)=>{
+                //             value.forEach((element) => {
+                //                 let status = {}
+                //                 status["gameState"] = element.game_state,
+                //                 status["players"] = {
+                //                     "playerName": element.username,
+                //                     "playerID": element.player_id,
+                //                     "status": element.status,
+                //                     "chips": element.chips,
+                //                     "cards": element.cards
+                //                 }
+                                
+                //                 game_state.push(status)
+                //             });
+                //             res.json(game_state)
+                          
+                //         }).catch(function(err){
+                //         console.log("Promise rejection error: "+err);
+                //         res.status(400).send("Bad request");  
+                //         })
+                //     } else{
+                //         randomCard().then(function(value){
+                //             // console.log(value.card_value);
+                //             let randomCardValue = "A";
+                //             if(randomCardValue == "A"){
+                //                 let v = Math.floor(Math.random() * 2 + 1)
+                //                 if( v == 1){
+                //                     randomCardValue = 1;
+                //                 } else{
+                //                     randomCardValue = 11;
+                //                 }
+                //             }
+                //             let uc = {
+                //                 "player_id": uid,
+                //                 "card_id": value.id
+                //             }
+                //             insertIntoUsersCards(uc);
+                //             getCurrentHand(uid).then((value)=>{
+                //                 let currentHandValue = value.hand_value;
+                //                 let newHandValue = currentHandValue + randomCardValue;
+                //                  let gp = {
+                //                 "game_id": 1,
+                //                 "player_id": uid,
+                //                 "status": gs,
+                //                 "hand_value": newHandValue 
+                //                 }
+                //                 updateGamesPlayers(gp);
+                //                 getGameState().then((value)=>{
+                //                     value.forEach((element) => {
+                //                         let status = {}
+                //                         status["gameState"] = element.game_state,
+                //                         status["players"] = {
+                //                             "playerName": element.username,
+                //                             "playerID": element.player_id,
+                //                             "status": element.status,
+                //                             "chips": element.chips,
+                //                             "cards": element.cards
+                //                         }
+                                        
+                //                         game_state.push(status)
+                //                     });
+                //                     res.json(game_state)
+                                  
+                //                 }).catch(function(err){
+                //                 console.log("Promise rejection error: "+err);
+                //                 res.status(400).send("Bad request");  
+                //                 })
+                //             })
+                //         }).catch((err) =>{
+                //             console.log("err" + err);
+                //         });
+                //     }
+                // })
+                      
+                
+            }
+
+        } else{
+            connection.query('UPDATE Games_Players SET status = ? WHERE player_id = ?', [gs, uid], (err, results) =>{
+                if(err) return res.status(400).send("Bad request");
+               
+            });
         }
+        getGameState().then((value)=>{
+            value.forEach((element) => {
+                let status = {}
+                status["gameState"] = element.game_state,
+                status["players"] = {
+                    "playerName": element.username,
+                    "playerID": element.player_id,
+                    "status": element.status,
+                    "chips": element.chips,
+                    "cards": element.cards
+                }
+                
+                game_state.push(status)
+            });
+            res.json(game_state)
+          
+        }).catch(function(err){
+        console.log("Promise rejection error: "+err);
+        res.status(400).send("Bad request");  
+        })
+    
+           
+
+            
     })
 
 
@@ -310,6 +427,10 @@ app.route('/v1/Games/Users/stand')
 
 app.route('/v1/Games/Users/hit')
     .patch((req, res) =>{
+        if(!req.get('X-User')) {
+            res.status(401).send("Unauthorized");	
+            return;
+        } 
         let uid = JSON.parse(req.get('X-User')).id;
         let gameid = 1;
         let gs = "hitting";
