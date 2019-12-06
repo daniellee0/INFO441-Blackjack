@@ -222,40 +222,45 @@ app.route('/v1/Users/unregister')
 
 
 app.route('/v1/Games/Users/bet')
-    .patch((req, res) =>{
-        let authid = JSON.parse(req.get('X-User')).id;
-        let userid = req.body.playerID;
-        let gameid = req.body.gameID;
-        let game_state = req.body.type;
-        let bet = req.body.text;
-        if( authid != userid){
-            res.status(401).send("Unauthorized");
-        } else {
-            connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [game_state, gameid], (err, results) =>{
+    .patch((req, res) =>{ 
+        let uid = JSON.parse(req.get('X-User')).id;
+        let gameid = 1;
+        let gs = "betting";
+        let bet = req.body.text;  
+        if(uid == 1){
+            connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [gs, gameid], (err, results) =>{
+                console.log(err)
                 if(err) return res.status(400).send("Bad request");
             });
-
-            connection.querty('UPDATE Users SET chips = ? WHERE id = ?', [bet, userid], (err, results) =>{
+        } else{
+            connection.query('UPDATE Users SET chips = ? WHERE id = ?', [bet, uid], (err, results) =>{
+                console.log(err)
                 if(err) return res.status(400).send("Bad request");
             });
-
-           getGameState().then((value)=>{
-                status[gameState] = value.game_state,
-                status[players] = {
-                    playerName: value.first_name,
-                    playerID: value.id,
-                    status: value.status,
-                    chips: value.chips,
-                    cards: value.card_name
-                }
-                res.set("Content-Type", "application/json");
-                res.json(status);
-           }).catch(function(err){
+            connection.query('UPDATE Games_Players SET status = ? WHERE id = ?', [gs, uid], (err, results) =>{
+                console.log(err)
+                if(err) return res.status(400).send("Bad request");
+            });
+        }
+        getGameState().then((value)=>{
+            value.forEach((element) => {
+                let status = {}
+                status["gameState"] = element.game_state,
+                status["players"] = {
+                    "playerName": element.username,
+                    "playerID": element.player_id,
+                    "status": element.status,
+                    "chips": element.chips,
+                    "cards": element.card_name
+                }   
+                game_state.push(status)
+            });
+            res.json(game_state)   
+        }).catch(function(err){
             console.log("Promise rejection error: "+err);
             res.status(400).send("Bad request");  
-          })
-
-        }    
+        })  
+        
 })
 
 app.route('/v1/Games/Users/stand')
