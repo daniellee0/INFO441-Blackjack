@@ -101,7 +101,14 @@ func main() {
 	context := &handlers.HandlerContext{SigningKey: sessionKey, Store: sessionStore, Users: userStore, Notifier: notifier}
 
 	mux := mux.NewRouter()
-
+	/*
+		TODO: setup endpoints
+			/v1/Users/register
+			/v1/Users/{userid}/unregister
+			/v1/Games/{gameid}/Users/{userid}/bet
+			/v1/Games/{gameid}/Users/{userid}/hit
+			/v1/Games/{gameid}/Users/{userid}/stand
+	*/
 	mux.HandleFunc("/v1/users/signup", context.SignUpHandler)                     // To sign up
 	mux.HandleFunc("/v1/users/register", context.SessionsHandler)                 // For login
 	mux.HandleFunc("/v1/users/register/{UserID}", context.SpecificSessionHandler) // To end session
