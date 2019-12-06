@@ -188,8 +188,7 @@ app.route('/v1/Games/Users/stand')
         if( authid != userid){
             res.status(401).send("Unauthorized");
         } else {
-            connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [game_state, gameid], (err, results) =>{
-                if(err) return res.status(400).send("Bad request");
+            connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [game_state, gameid], (err, results) =>{                if(err) return res.status(400).send("Bad request");
             });
 
             getGameState().then((value)=>{

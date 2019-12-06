@@ -51,8 +51,8 @@ create table if not exists Messages(
     foreign key (game_id) references Games(id) on delete cascade 
 );
 
-INSERT INTO Users (email, passhash, username, first_name, last_name, `status`, chips) VALUES
-    ("email@email.com", "passhash", "House", "House", "House", "hit", 100);
+INSERT INTO Users (email, passhash, username, first_name, last_name,  chips) VALUES
+    ("email@email.com", "passhash", "House", "House", "House", 100);
 
 INSERT INTO Cards (card_name, card_value, card_suit) VALUES 
     ("AH", "A", "Hearts"),
