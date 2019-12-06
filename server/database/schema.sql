@@ -13,7 +13,7 @@ create table if not exists Games (
     game_state varchar(255) not null
 );
 
-create table if not exists Games_Players (
+create table  if not exists Games_Players (
     id int not null auto_increment primary key,
     game_id int not null,
     player_id int not null,
@@ -51,8 +51,10 @@ create table if not exists Messages(
     foreign key (game_id) references Games(id) on delete cascade 
 );
 
-INSERT INTO Users (email, passhash, username, first_name, last_name, `status`, chips) VALUES
-    ("email@email.com", "passhash", "House", "House", "House", "hit", 100);
+INSERT INTO Games (game_state) VALUES ("ready");
+
+INSERT INTO Users (email, passhash, username, first_name, last_name,  chips) VALUES
+    ("email@email.com", "passhash", "House", "House", "House",  100);
 
 INSERT INTO Cards (card_name, card_value, card_suit) VALUES 
     ("AH", "A", "Hearts"),
