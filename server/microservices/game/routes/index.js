@@ -10,10 +10,49 @@ let connection = mysql.createConnection({
     database : "blackjack"
   });
 
-const status = {};
+const game_state =[];
+
+
+
+function insertIntoGamesPlayers(gp){
+        connection.query('INSERT INTO Games_Players SET ?', gp, (err, results) =>{
+           if(err) return;
+        })
+}
+
+function randomCard(){
+    return new Promise(function (resolve, reject){
+        connection.query('select * from Cards Order by rand() limit 1',  (err, results) =>{
+            if(results == undefined){
+                reject(err);
+            } else{
+                resolve(results[0]);
+            }
+        });
+    });
+}
+
+function insertIntoUsersCards(uc){
+    connection.query('INSERT INTO Users_Cards SET ?', uc, (err, results) =>{
+        if(err) return;
+    });
+}
+
+function checkDealerHand(){
+    return new Promise ( (resolve, reject) =>{
+        connection.query('SELECT COUNT(*) AS count FROM Users_Cards WHERE player_id = ?', 1, (err,results) =>{
+            if(err != null){
+                reject(err);
+            } else{
+                resolve(results[0]);
+            }
+        })
+    })
+
+}
 
 function getGameState(){
-    return new Promise((reject, resolve) =>{
+    return new Promise((resolve, reject) =>{
         let q = 'SELECT * FROM Users u \
         JOIN Games_Players gp ON u.id = gp.player_id \
         JOIN Games g ON g.id = gp.game_id \
@@ -25,7 +64,8 @@ function getGameState(){
                 console.log(err)
                 reject(err)
             } else{
-                resolve(results[0])
+                // console.log(results);
+                resolve(results)
             }
 
         });
@@ -33,76 +73,115 @@ function getGameState(){
   
 }
 
-function insertIntoGP(id, status){
-        let gp = {
-            "game_id": 1,
-            "player_id": id,
-            "status": status,
-            "hand_value": 0
-        }
-        connection.query('INSERT INTO Games_Players SET ?', gp, (err, results) =>{
-           
-        })
-}
-
-function randomCard(){
-    return new Promise(function (reject, resolve){
-        connection.query('select * from Cards Order by rand() limit 1',  (err, results) =>{
-            // console.log(err, results);
-            if(err != null){
-                reject(JSON.parse(err));
-            } else{
-                // console.log(results[0]);
-                resolve(results[0]);
-            }
-        });
-    });
-}
-
-
 app.route('/v1/Users/register')
   .post((req, res) =>{
    
-    let playerName = req.body.first_name + "1";
     let user = {
         "email": req.body.email,
         "passhash": req.body.passhash, 
-        "username": playerName,
+        "username": req.body.first_name,
         "first_name": req.body.first_name,
         "last_name": req.body.last_name,
         "chips": req.body.chips,
-        "status": req.body.status
     }
-        connection.query('INSERT INTO Users SET ?', user, (err, results) =>{
-            if(err)res.status(400).send("Bad request");
-            let id = results.insertId;
-            insertIntoGP(id, user.status);
-            randomCard().then(function(value){
-                let val = value;
-                console.log("value is" + val);
-            }, function(err){
-                console.log("Promise rejection error: "+ err);
-                // res.status(400).send("Bad request");  
-            })
-
-        });
-    //     getGameState().then((value)=>{
-    //         status[gameState] = value.game_state,
-    //         status[players] = {
-    //             playerName: value.first_name,
-    //             playerID: value.id,
-    //             status: value.status,
-    //             chips: value.chips,
-    //             cards: value.card_name
-    //         }
-    //         res.json(status);
-    //    }).catch(function(err){
-    //     console.log("Promise rejection error: "+err);
-    //     res.status(400).send("Bad request");  
-    //   })
-
     
+    connection.query('INSERT INTO Users SET ?', user, (err, results) =>{
+        if(err){ 
+            // if(err)res.status(400).send("Bad request");
+            getGameState().then((value)=>{
+            
+                value.forEach((element) => {
+                    console.log(element.player_id)
+                    let status = {}
+                    status["gameState"] = element.game_state,
+                    status["players"] = {
+                        "playerName": element.username,
+                        "playerID": element.player_id,
+                        "status": element.status,
+                        "chips": element.chips,
+                        "cards": element.card_name
+                    }
+                    
+                    game_state.push(status)
+                });
+                
+                console.log(game_state)
+                res.json(game_state)
+              
+            }).catch(function(err){
+            console.log("Promise rejection error: "+err);
+            res.status(400).send("Bad request");  
+            })
+        } else{
+            let id = results.insertId;
+            randomCard().then(function(value){
+                let uc = {
+                    "player_id": id,
+                    "card_id": value.id
+                }
+                insertIntoUsersCards(uc);
+                let gp = {
+                    "game_id": 1,
+                    "player_id": id,
+                    "status": "ready",
+                    "hand_value": value.card_value
+                }
+                insertIntoGamesPlayers(gp);
+    
+            }).catch((err) =>{
+                console.log("err" + err);
+            });
+        }
+  
+    });
+
+        checkDealerHand().then((value) =>{
+            if(value.count == 0){
+                randomCard().then(function(value){
+                    let uc = {
+                        "player_id": 1,
+                        "card_id": value.id
+                    }
+                    insertIntoUsersCards(uc);
+                    let gp = {
+                        "game_id": 1,
+                        "player_id": 1,
+                        "status": "ready",
+                        "hand_value": value.card_value
+                    }
+                    insertIntoGamesPlayers(gp);
+    
+                }).catch((err) =>{
+                    console.log("err" + err);
+                });
+            }
+        }).catch((err) =>{
+            console.log("err" + err);
+        });
+        getGameState().then((value)=>{
+            
+            value.forEach((element) => {
+                let status = {}
+                status["gameState"] = element.game_state,
+                status["players"] = {
+                    "playerName": element.username,
+                    "playerID": element.player_id,
+                    "status": element.status,
+                    "chips": element.chips,
+                    "cards": element.card_name
+                }
+                
+                game_state.push(status)
+            });
+            res.json(game_state)
+          
+        }).catch(function(err){
+        console.log("Promise rejection error: "+err);
+        res.status(400).send("Bad request");  
+        })
+
   });
+
 
 app.route('/v1/Users/unregister')
     .delete((req, res) =>{
@@ -188,7 +267,8 @@ app.route('/v1/Games/Users/stand')
         if( authid != userid){
             res.status(401).send("Unauthorized");
         } else {
-            connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [game_state, gameid], (err, results) =>{                if(err) return res.status(400).send("Bad request");
+            connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [game_state, gameid], (err, results) =>{
+                if(err) return res.status(400).send("Bad request");
             });
 
             getGameState().then((value)=>{
