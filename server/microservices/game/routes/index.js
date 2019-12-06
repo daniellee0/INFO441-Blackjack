@@ -33,40 +33,74 @@ function getGameState(){
   
 }
 
+function insertIntoGP(id, status){
+        let gp = {
+            "game_id": 1,
+            "player_id": id,
+            "status": status,
+            "hand_value": 0
+        }
+        connection.query('INSERT INTO Games_Players SET ?', gp, (err, results) =>{
+           
+        })
+}
+
+function randomCard(){
+    return new Promise(function (reject, resolve){
+        connection.query('select * from Cards Order by rand() limit 1',  (err, results) =>{
+            // console.log(err, results);
+            if(err != null){
+                reject(JSON.parse(err));
+            } else{
+                // console.log(results[0]);
+                resolve(results[0]);
+            }
+        });
+    });
+}
+
 
 app.route('/v1/Users/register')
   .post((req, res) =>{
-    if(!req.get('X-User')) {
-        res.status(401).send("Unauthorized");	
-        return;
-    } 
-    let aid = JSON.parse(req.get('X-User')).id;
+   
+    let playerName = req.body.first_name + "1";
     let user = {
-
+        "email": req.body.email,
+        "passhash": req.body.passhash, 
+        "username": playerName,
+        "first_name": req.body.first_name,
+        "last_name": req.body.last_name,
+        "chips": req.body.chips,
+        "status": req.body.status
     }
-    if( aid != uid){
-        res.status(401).send("Unauthorized");
-    } else{
-        connection.query('UPDATE Users SET status = ? WHERE id = ?)', ["registered", uid], (err, results) =>{
+        connection.query('INSERT INTO Users SET ?', user, (err, results) =>{
             if(err)res.status(400).send("Bad request");
-        });
-        getGameState(gameid).then((value)=>{
-            status[gameState] = value.game_state,
-            status[players] = {
-                playerName: value.first_name,
-                playerID: value.id,
-                status: value.status,
-                chips: value.chips,
-                cards: value.card_name
-            }
-            res.set("Content-Type", "application/json");
-            res.json(status);
-       }).catch(function(err){
-        console.log("Promise rejection error: "+err);
-        res.status(400).send("Bad request");  
-      })
+            let id = results.insertId;
+            insertIntoGP(id, user.status);
+            randomCard().then(function(value){
+                let val = value;
+                console.log("value is" + val);
+            }, function(err){
+                console.log("Promise rejection error: "+ err);
+                // res.status(400).send("Bad request");  
+            })
 
-    }
+        });
+    //     getGameState().then((value)=>{
+    //         status[gameState] = value.game_state,
+    //         status[players] = {
+    //             playerName: value.first_name,
+    //             playerID: value.id,
+    //             status: value.status,
+    //             chips: value.chips,
+    //             cards: value.card_name
+    //         }
+    //         res.json(status);
+    //    }).catch(function(err){
+    //     console.log("Promise rejection error: "+err);
+    //     res.status(400).send("Bad request");  
+    //   })
+
     
   });
 
@@ -177,18 +211,7 @@ app.route('/v1/Games/Users/stand')
         }
     })
 
-function randomCard(){
-    return new Promise((reject, resolve) =>{
-        let r = 'select round(rand() * 51)'
-        connection.query('SELECT * FROM CARDS WHERE id = ?', r, (err, results) =>{
-            if(results == undefined){
-                reject(err)
-            } else{
-                resolve(results[0])
-            }
-        })
-    })
-}
+
 
 function getCurrentHand(id){
     return new Promise((reject, resolve) => {
