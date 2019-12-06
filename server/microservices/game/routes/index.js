@@ -13,7 +13,6 @@ let connection = mysql.createConnection({
 const game_state =[];
 
 
-
 function insertIntoGamesPlayers(gp){
         connection.query('INSERT INTO Games_Players SET ?', gp, (err, results) =>{
            if(err) return;
@@ -67,10 +66,8 @@ function getGameState(){
                 // console.log(results);
                 resolve(results)
             }
-
         });
     });
-  
 }
 
 app.route('/v1/Users/register')
@@ -189,32 +186,36 @@ app.route('/v1/Users/unregister')
             res.status(401).send("Unauthorized");	
             return;
         } 
-        let authid = JSON.parse(req.get('X-User')).id;
-        let userid = req.body.playerID;
-        let gameid = req.body.gameID;
-        if( authid != userid){
-            res.status(401).send("Unauthorized");
-        } else{
-            connection.query('DELETE FROM Users WHERE id = ?', userid, (err, results) =>{
+        let uid = JSON.parse(req.get('X-User')).id;
+        console.log(uid)
+        connection.query('DELETE FROM Users WHERE id = ?', uid, (err, results) =>{
+            console.log(err);
                 if(err)res.status(400).send("Bad request");
+        });
+        connection.query('DELETE FROM Games_Players WHERE player_id = ?', uid, (err, results) =>{
+            if(err)res.status(400).send("Bad request");
+        });
+        connection.query('DELETE FROM Users_Cards WHERE player_id = ?', uid, (err, results) =>{
+            if(err)res.status(400).send("Bad request");
+        });
+        getGameState().then((value)=>{
+            value.forEach((element) => {
+                let status = {}
+                status["gameState"] = element.game_state,
+                status["players"] = {
+                    "playerName": element.username,
+                    "playerID": element.player_id,
+                    "status": element.status,
+                    "chips": element.chips,
+                    "cards": element.card_name
+                }   
+                game_state.push(status)
             });
-            getGameState().then((value)=>{
-                status[gameState] = value.game_state,
-                status[players] = {
-                    playerName: value.first_name,
-                    playerID: value.id,
-                    status: value.status,
-                    chips: value.chips,
-                    cards: value.card_name
-                }
-                res.set("Content-Type", "application/json");
-                res.json(status);
-           }).catch(function(err){
-                console.log("Promise rejection error: "+err);
-                res.status(400).send("Bad request");   
-          })
-        }
-       
+            res.json(game_state)   
+        }).catch(function(err){
+        console.log("Promise rejection error: "+err);
+            res.status(400).send("Bad request");  
+        })  
 });
 
 
