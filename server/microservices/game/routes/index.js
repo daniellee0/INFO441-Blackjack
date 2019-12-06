@@ -37,6 +37,19 @@ function insertIntoUsersCards(uc){
     });
 }
 
+function getCurrentHand(id){
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT * FROM Games_Players WHERE player_id = ?', id, (err, results) =>{
+            if(results == undefined){
+                reject(err)
+            } else{
+                resolve(results[0])
+            }
+        })
+
+    })
+}
+
 function checkDealerHand(){
     return new Promise ( (resolve, reject) =>{
         connection.query('SELECT COUNT(*) AS count FROM Users_Cards WHERE player_id = ?', 1, (err,results) =>{
@@ -50,13 +63,22 @@ function checkDealerHand(){
 
 }
 
+function updateGamesPlayers(gp){
+    connection.query('UPDATE Games_Players SET ? WHERE player_id =?', [gp, gp.player_id], (err, results) =>{
+        console.log(err)
+    })
+}
+
+
 function getGameState(){
     return new Promise((resolve, reject) =>{
-        let q = 'SELECT * FROM Users u \
-        JOIN Games_Players gp ON u.id = gp.player_id \
-        JOIN Games g ON g.id = gp.game_id \
-        JOIN Users_Cards uc ON  u.id = uc.player_id \
-        JOIN Cards c ON c.id = uc.card_id'
+        let q = 'SELECT g.game_state, u.username, uc.player_id, gp.status, u.chips, JSON_ARRAYAGG(c.card_name) AS cards \
+                FROM Users u \
+                JOIN Games_Players gp ON u.id = gp.player_id \
+                JOIN Games g ON g.id = gp.game_id \
+                JOIN Users_Cards uc ON  u.id = uc.player_id \
+                JOIN Cards c ON c.id = uc.card_id  \
+                GROUP BY g.game_state, u.username, uc.player_id, gp.status, u.chips'
 
         connection.query(q, (err, results) => {
             if(results == undefined){
@@ -70,45 +92,34 @@ function getGameState(){
     });
 }
 
-app.route('/v1/Users/register')
-  .post((req, res) =>{
-   
-    let user = {
-        "email": req.body.email,
-        "passhash": req.body.passhash, 
-        "username": req.body.first_name,
-        "first_name": req.body.first_name,
-        "last_name": req.body.last_name,
-        "chips": req.body.chips,
-    }
-    
+function insertNewUser(user){
     connection.query('INSERT INTO Users SET ?', user, (err, results) =>{
         if(err){ 
             // if(err)res.status(400).send("Bad request");
-            getGameState().then((value)=>{
+            // getGameState().then((value)=>{
             
-                value.forEach((element) => {
-                    console.log(element.player_id)
-                    let status = {}
-                    status["gameState"] = element.game_state,
-                    status["players"] = {
-                        "playerName": element.username,
-                        "playerID": element.player_id,
-                        "status": element.status,
-                        "chips": element.chips,
-                        "cards": element.card_name
-                    }
+            //     value.forEach((element) => {
+            //         console.log(element.player_id)
+            //         let status = {}
+            //         status["gameState"] = element.game_state,
+            //         status["players"] = {
+            //             "playerName": element.username,
+            //             "playerID": element.player_id,
+            //             "status": element.status,
+            //             "chips": element.chips,
+            //             "cards": element.card_name
+            //         }
                     
-                    game_state.push(status)
-                });
+            //         game_state.push(status)
+            //     });
                 
-                console.log(game_state)
-                res.json(game_state)
+            //     console.log(game_state)
+            //     res.json(game_state)
               
-            }).catch(function(err){
-            console.log("Promise rejection error: "+err);
-            res.status(400).send("Bad request");  
-            })
+            // }).catch(function(err){
+            // console.log("Promise rejection error: "+err);
+            // res.status(400).send("Bad request");  
+            // })
         } else{
             let id = results.insertId;
             randomCard().then(function(value){
@@ -128,55 +139,49 @@ app.route('/v1/Users/register')
             }).catch((err) =>{
                 console.log("err" + err);
             });
-        }
-  
-    });
-
-        checkDealerHand().then((value) =>{
-            if(value.count == 0){
-                randomCard().then(function(value){
-                    let uc = {
-                        "player_id": 1,
-                        "card_id": value.id
-                    }
-                    insertIntoUsersCards(uc);
-                    let gp = {
-                        "game_id": 1,
-                        "player_id": 1,
-                        "status": "ready",
-                        "hand_value": value.card_value
-                    }
-                    insertIntoGamesPlayers(gp);
-    
-                }).catch((err) =>{
-                    console.log("err" + err);
-                });
-            }
-        }).catch((err) =>{
-            console.log("err" + err);
-        });
-        getGameState().then((value)=>{
-            
-            value.forEach((element) => {
-                let status = {}
-                status["gameState"] = element.game_state,
-                status["players"] = {
-                    "playerName": element.username,
-                    "playerID": element.player_id,
-                    "status": element.status,
-                    "chips": element.chips,
-                    "cards": element.card_name
+            checkDealerHand().then((value) =>{
+                if(value.count == 0){
+                    randomCard().then(function(value){
+                        let uc = {
+                            "player_id": 1,
+                            "card_id": value.id
+                        }
+                        insertIntoUsersCards(uc);
+                        let gp = {
+                            "game_id": 1,
+                            "player_id": 1,
+                            "status": "ready",
+                            "hand_value": value.card_value
+                        }
+                        insertIntoGamesPlayers(gp);
+        
+                    }).catch((err) =>{
+                        console.log("err" + err);
+                    });
                 }
-                
-                game_state.push(status)
+            }).catch((err) =>{
+                console.log("err" + err);
             });
-            res.json(game_state)
-          
-        }).catch(function(err){
-        console.log("Promise rejection error: "+err);
-        res.status(400).send("Bad request");  
-        })
+        }
 
+    });
+}
+
+app.route('/v1/Users/register')
+  .post((req, res) =>{
+   
+    let user = {
+        "email": req.body.email,
+        "passhash": req.body.passhash, 
+        "username": req.body.first_name,
+        "first_name": req.body.first_name,
+        "last_name": req.body.last_name,
+        "chips": req.body.chips,
+    }
+    
+    insertNewUser(user);
+    
+    
   });
 
 
@@ -197,25 +202,26 @@ app.route('/v1/Users/unregister')
         });
         connection.query('DELETE FROM Users_Cards WHERE player_id = ?', uid, (err, results) =>{
             if(err)res.status(400).send("Bad request");
+            getGameState().then((value)=>{
+                value.forEach((element) => {
+                    let status = {}
+                    status["gameState"] = element.game_state,
+                    status["players"] = {
+                        "playerName": element.username,
+                        "playerID": element.player_id,
+                        "status": element.status,
+                        "chips": element.chips,
+                        "cards": element.card_name
+                    }   
+                    game_state.push(status)
+                });
+                res.json(game_state)   
+            }).catch(function(err){
+            console.log("Promise rejection error: "+err);
+                res.status(400).send("Bad request");  
+            }) 
         });
-        getGameState().then((value)=>{
-            value.forEach((element) => {
-                let status = {}
-                status["gameState"] = element.game_state,
-                status["players"] = {
-                    "playerName": element.username,
-                    "playerID": element.player_id,
-                    "status": element.status,
-                    "chips": element.chips,
-                    "cards": element.card_name
-                }   
-                game_state.push(status)
-            });
-            res.json(game_state)   
-        }).catch(function(err){
-        console.log("Promise rejection error: "+err);
-            res.status(400).send("Bad request");  
-        })  
+        
 });
 
 
@@ -237,7 +243,7 @@ app.route('/v1/Games/Users/bet')
                 console.log(err)
                 if(err) return res.status(400).send("Bad request");
             });
-            connection.query('UPDATE Games_Players SET status = ? WHERE id = ?', [gs, uid], (err, results) =>{
+            connection.query('UPDATE Games_Players SET status = ? WHERE player_id = ?', [gs, uid], (err, results) =>{
                 console.log(err)
                 if(err) return res.status(400).send("Bad request");
             });
@@ -251,7 +257,7 @@ app.route('/v1/Games/Users/bet')
                     "playerID": element.player_id,
                     "status": element.status,
                     "chips": element.chips,
-                    "cards": element.card_name
+                    "cards": element.cards
                 }   
                 game_state.push(status)
             });
@@ -298,64 +304,73 @@ app.route('/v1/Games/Users/stand')
 
 
 
-function getCurrentHand(id){
-    return new Promise((reject, resolve) => {
-        connection.query('SELECT * FROM Games_Players WHERE player_id  = ?', id, (err, results) =>{
-            if(results == undefined){
-                reject(err)
-            } else{
-                resolve(results[0])
-            }
-        })
 
-    })
-}
 
 
 
 app.route('/v1/Games/Users/hit')
     .patch((req, res) =>{
-        let authid = JSON.parse(req.get('X-User')).id;
-        let userid = req.body.playerID;
-        let gameid = req.body.gameID;
-        let game_state = req.body.type;
-        if( authid != userid){
-            res.status(401).send("Unauthorized");
-        } else {
-            connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [game_state, gameid], (err, results) =>{
+        let uid = JSON.parse(req.get('X-User')).id;
+        let gameid = 1;
+        let gs = "hitting";
+        if(uid == 1){
+            connection.query('UPDATE Games SET game_state = ? WHERE id = ?', [gs, gameid], (err, results) =>{
+                console.log(err)
                 if(err) return res.status(400).send("Bad request");
             });
-            randomCard().then((value) =>{
-                let val = value.card_value;
-                connection.query('INSERT INTO Users_Cards (player_id, card_id) VALUES (?, ?)', [userid, value.id], (err, results) =>{
-                    if(err) return res.status(400).send("Bad request");
-                });
-                getCurrentHand(userid).then((value) =>{
-                    let oldVal = value.hand_value;
-                    let newVal = val + oldVal;
-                    connection.query('UPDATE Games_Players SET hand_value = ? WHERE player_id = ?', [newVal, userid], (err, results)=>{
-                        if(err) return res.status(400).send("Bad request");
+        } else{
+            randomCard().then(function(value){
+                // console.log(value.card_value);
+                let randomCardValue = "A";
+                if(randomCardValue == "A"){
+                    let v = Math.floor(Math.random() * 2 + 1)
+                    if( v == 1){
+                        randomCardValue = 1;
+                    } else{
+                        randomCardValue = 11;
+                    }
+                }
+                let uc = {
+                    "player_id": uid,
+                    "card_id": value.id
+                }
+                insertIntoUsersCards(uc);
+                getCurrentHand(uid).then((value)=>{
+                    let currentHandValue = value.hand_value;
+                    let newHandValue = currentHandValue + randomCardValue;
+                     let gp = {
+                    "game_id": 1,
+                    "player_id": uid,
+                    "status": gs,
+                    "hand_value": newHandValue 
+                    }
+                    updateGamesPlayers(gp);
+                    getGameState().then((value)=>{
+                        value.forEach((element) => {
+                            let status = {}
+                            status["gameState"] = element.game_state,
+                            status["players"] = {
+                                "playerName": element.username,
+                                "playerID": element.player_id,
+                                "status": element.status,
+                                "chips": element.chips,
+                                "cards": element.cards
+                            }
+                            
+                            game_state.push(status)
+                        });
+                        res.json(game_state)
+                      
+                    }).catch(function(err){
+                    console.log("Promise rejection error: "+err);
+                    res.status(400).send("Bad request");  
                     })
                 })
-              
+            }).catch((err) =>{
+                console.log("err" + err);
             });
-
-            getGameState().then((value)=>{
-                status[gameState] = value.game_state,
-                status[players] = {
-                    playerName: value.first_name,
-                    playerID: value.id,
-                    status: value.status,
-                    chips: value.chips,
-                    cards: value.card_name
-                }
-                res.set("Content-Type", "application/json");
-                res.json(status);
-           }).catch(function(err){
-            console.log("Promise rejection error: "+err);
-            res.status(400).send("Bad request");  
-          })
-        }
+           
+        }      
     })
 
 
