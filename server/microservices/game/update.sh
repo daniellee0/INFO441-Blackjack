@@ -28,4 +28,4 @@ docker run -td \
     -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
     -e RABBITADDR=rabbit:5672 \
     --restart unless-stopped \
-    donloby/chat:latest
+    donloby/game:latest

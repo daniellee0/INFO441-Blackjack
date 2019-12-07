@@ -21,6 +21,7 @@ type User struct {
 	UserName  string `json:"userName"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
+	Chips     int    `json:"chips"`
 }
 
 //Credentials represents user sign-in credentials
@@ -81,7 +82,7 @@ func (nu *NewUser) ToUser() (*User, error) {
 	hasher := md5.New()
 	hasher.Write([]byte(strings.ToLower(strings.Trim(e.Address, " "))))
 	user := &User{Email: nu.Email, UserName: nu.UserName, FirstName: nu.FirstName,
-		LastName: nu.LastName}
+		LastName: nu.LastName, Chips: 100}
 	passErr := user.SetPassword(nu.Password)
 	if passErr != nil {
 		return nil, passErr

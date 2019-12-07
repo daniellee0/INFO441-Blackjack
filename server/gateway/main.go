@@ -2,6 +2,8 @@ package main
 
 import (
 	users "INFO441-Blackjack/server/database"
+	handlers "INFO441-Blackjack/server/gateway/handlers"
+	"INFO441-Blackjack/server/gateway/sessions"
 	"database/sql"
 	"fmt"
 	"log"
@@ -10,16 +12,10 @@ import (
 	"os"
 	"strings"
 
-	// "database/sql"
-	// "github.com/go-redis/redis"
-	handlers "INFO441-Blackjack/server/gateway/handlers"
-	"INFO441-Blackjack/server/gateway/sessions"
-
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/streadway/amqp"
-	// sessions "INFO441-Blackjack/server/gateway/sessions"
 )
 
 func failOnError(err error, msg string) {
@@ -52,8 +48,8 @@ func main() {
 	tlsCertPath := os.Getenv("TLSCERT")
 	sessionKey := os.Getenv("SESSIONKEY")
 	redisAddr := os.Getenv("REDISADDR")
-	chatAddrs := os.Getenv("CHATADDR") // Fix this
-	gameAddrs := os.Getenv("GAMEADDR") // Fix this
+	chatAddrs := os.Getenv("CHATADDR")
+	gameAddrs := os.Getenv("GAMEADDR")
 	rabbitAddr := os.Getenv("RABBITADDR")
 	rabbitQueueName := os.Getenv("RABBITQUEUENAME")
 
@@ -126,6 +122,5 @@ func main() {
 	wrappedMux := handlers.NewSetHeader(mux)
 
 	log.Printf("server is listening at %s...", addr)
-	log.Fatal(http.ListenAndServe(addr, mux))
 	log.Fatal(http.ListenAndServeTLS(addr, tlsCertPath, tlsKeyPath, wrappedMux))
 }

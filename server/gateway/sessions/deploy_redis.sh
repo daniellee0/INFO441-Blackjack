@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+
+docker rm -f blackjackredis
+
+
 # Run redis
 docker run -d \
 -p 6379:6379 \

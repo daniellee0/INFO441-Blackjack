@@ -36,27 +36,23 @@ func (ctx *HandlerContext) SignUpHandler(w http.ResponseWriter, r *http.Request)
 	dec := json.NewDecoder(r.Body)
 	err := dec.Decode(newUser)
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
 	if err := newUser.Validate(); err != nil {
-		fmt.Println(err)
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
 	user, err := newUser.ToUser()
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
 	addedUser, err := ctx.Users.Insert(user)
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
@@ -169,7 +165,13 @@ func (ctx *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 
-	err = json.NewEncoder(w).Encode(user)
+	allUsers, err3 := ctx.Users.GetAllUsers(user.ID)
+	if err3 != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(allUsers)
 
 	if err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)

@@ -1,13 +1,14 @@
 "use strict";
 const express = require("express");
 const mysql = require("mysql");
+const sendToMQ = require('../queueMessage');
 const app = express();
 
 let connection = mysql.createConnection({
-    host     : 'localhost',
+    host     : 'blackjackmysql',
     user     : "root",
-    password : "pass",
-    database : "blackjack"
+    password : "password",
+    database : "blackjackmysqldb"
   });
 
 const game_state =[];

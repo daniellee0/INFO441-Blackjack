@@ -10,6 +10,7 @@ export MYSQL_ROOT_PASSWORD="password"
 docker run -td \
 -p 3306:3306 \
 --name blackjackmysql \
+--network blackjack \
 -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
 -e MYSQL_DATABASE=blackjackmysqldb \
 donloby/blackjackmysql

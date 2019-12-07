@@ -7,8 +7,6 @@ docker rmi -f donloby/chat:latest
 #Pull from DockerHub
 docker pull donloby/chat:latest
 
-docker rm -f chat
-
 
 # Export environment variables
 export ADDR=":8000"

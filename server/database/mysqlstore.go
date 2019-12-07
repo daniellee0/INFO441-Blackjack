@@ -29,7 +29,7 @@ func (store *dbStore) GetByID(id int64) (*users.User, error) {
 	rows := store.DB.QueryRow("SELECT * FROM Users WHERE id=?", id)
 
 	if err := rows.Scan(&c.ID, &c.Email, &c.PassHash, &c.UserName,
-		&c.FirstName, &c.LastName); err != nil {
+		&c.FirstName, &c.LastName, &c.Chips); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("%s", "User not found")
 		}
@@ -49,7 +49,7 @@ func (store *dbStore) GetByEmail(email string) (*users.User, error) {
 	c := users.User{}
 	for rows.Next() {
 		if err := rows.Scan(&c.ID, &c.Email, &c.PassHash, &c.UserName,
-			&c.FirstName, &c.LastName); err != nil {
+			&c.FirstName, &c.LastName, &c.Chips); err != nil {
 			fmt.Printf("error scanning row: %v\n", err)
 		}
 	}
@@ -66,7 +66,7 @@ func (store *dbStore) GetByUserName(username string) (*users.User, error) {
 	c := users.User{}
 	for rows.Next() {
 		if err := rows.Scan(&c.ID, &c.Email, &c.PassHash, &c.UserName,
-			&c.FirstName, &c.LastName); err != nil {
+			&c.FirstName, &c.LastName, &c.Chips); err != nil {
 			fmt.Printf("error scanning row: %v\n", err)
 		}
 	}
@@ -99,23 +99,6 @@ func (store *dbStore) Insert(user *users.User) (*users.User, error) {
 	if e != nil {
 		return nil, e
 	}
-
-	// var members string
-	// channel := store.DB.QueryRow("SELECT members FROM Channels WHERE id = 1")
-
-	// e = channel.Scan(&members)
-	// if e != nil {
-	// 	return nil, e
-	// }
-	// split := strings.Split(members, "}")
-	// split[0] += ", \"ID" + strconv.FormatInt(id, 10) + "\": " + strconv.FormatInt(id, 10) + "}"
-	// updatedUsers := strings.Join(split, "")
-
-	// insertUser := "UPDATE Channels SET members = ? WHERE id = 1"
-	// res, e = store.DB.Exec(insertUser, updatedUsers)
-	// if e != nil {
-	// 	return nil, e
-	// }
 	contact, e := store.GetByID(id)
 	return contact, e
 }
@@ -135,4 +118,31 @@ func (store *dbStore) Update(id int64, updates *users.Updates) (*users.User, err
 	}
 	return contact, e
 
+}
+
+// GetAllUsers returns all users except for the given user id
+func (store *dbStore) GetAllUsers(id int64) ([]*users.User, error) {
+	var allUsers []*users.User
+	user, err := store.GetByID(id)
+	if err != nil {
+		return nil, errors.New("Failed to retrieve matching rows by id")
+	}
+	allUsers = append(allUsers, user)
+
+	// Get all users
+	rows, e := store.DB.Query("SELECT * FROM Users WHERE NOT id=?", id)
+	if e != nil {
+		return nil, errors.New("Failed to retrieve matching rows")
+	}
+	defer rows.Close()
+	c := users.User{}
+	for rows.Next() {
+		if err := rows.Scan(&c.ID, &c.Email, &c.PassHash, &c.UserName,
+			&c.FirstName, &c.LastName, &c.Chips); err != nil {
+			fmt.Printf("error scanning row: %v\n", err)
+		}
+		allUsers = append(allUsers, &c)
+	}
+	allUsers = append(allUsers, &users.User{ID: 90, Email: "blah@gmail.com", PassHash: []byte("helo"), UserName: "ddd", FirstName: "ddd", LastName: "ddd"})
+	return allUsers, e
 }

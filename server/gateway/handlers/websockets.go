@@ -3,7 +3,6 @@ package handlers
 import (
 	"INFO441-Blackjack/server/gateway/sessions"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -52,7 +51,7 @@ func (ctx *HandlerContext) NewWebSocketHandler(notifier *Notifier) *WebSocketHan
 }
 
 func (websh *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	sessionState := sessions.SessionState{}
+	sessionState := &sessions.SessionState{}
 	_, err := sessions.GetState(r, websh.ctx.SigningKey, websh.ctx.Store, sessionState)
 	if err != nil {
 		auth := r.URL.Query().Get("auth")
@@ -62,7 +61,6 @@ func (websh *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		}
 		r.Header.Del("X-User")
 	}
-	log.Println("WebSocket upgrade req received")
 	conn, err := websh.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error connecting to WebSocket: %v", err), http.StatusInternalServerError)

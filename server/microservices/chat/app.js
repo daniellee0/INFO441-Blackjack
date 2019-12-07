@@ -4,7 +4,7 @@
  const app = express();
  const addr = process.env.ADDR || ":80";
  const [host, port] = addr.split(":");
- const routes = require("./routes/index");
+ const routes = require("./routes");
  const amqp = require("amqplib");
  const queueName = "queue";
  const rabbitAddr = process.env.RABBITADDR;

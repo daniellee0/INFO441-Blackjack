@@ -28,4 +28,7 @@ type Store interface {
 
 	//Delete deletes the user with the given ID
 	Delete(id int64) error
+
+	// Gets all users
+	GetAllUsers(id int64) ([]*User, error)
 }

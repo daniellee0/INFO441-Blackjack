@@ -46,14 +46,16 @@ create table if not exists Users_Cards (
 
 create table if not exists Messages(
     id int NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+    player_id int not null,
     game_id int not null,
     body TEXT(65535),
-    foreign key (game_id) references Games(id) on delete cascade 
+    foreign key (game_id) references Games(id) on delete cascade,
+    foreign key (player_id) references Users(id) on delete cascade 
 );
 
 -- Insert the House
-INSERT INTO Users (email, passhash, username, first_name, last_name, `status`, chips) VALUES
-    ("house@email.com", "passhash", "House", "House", "House", "hit", 100);
+INSERT INTO Users (email, passhash, username, first_name, last_name, chips) VALUES
+    ("house@email.com", "passhash", "House", "House", "House", 100);
 
 -- Insert the initial game
 INSERT INTO Games(game_state) VALUES
