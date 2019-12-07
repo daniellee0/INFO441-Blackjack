@@ -94,6 +94,12 @@ func (store *dbStore) Insert(user *users.User) (*users.User, error) {
 	// // get ID of success insert
 	id, _ := res.LastInsertId()
 
+	insertRow = "INSERT INTO Games_Players(game_id, player_id, status, hand_value) VALUES (?,?,?,?)"
+	res, e = store.DB.Exec(insertRow, 1, id, "betting", 0)
+	if e != nil {
+		return nil, e
+	}
+
 	// var members string
 	// channel := store.DB.QueryRow("SELECT members FROM Channels WHERE id = 1")
 

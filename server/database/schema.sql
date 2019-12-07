@@ -38,11 +38,11 @@ create table if not exists Users_Cards (
     foreign key (`card_id`) references `Cards`(`id`) on delete cascade
 );
 
-create table if not exists Rooms (
-    id int not null AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(255), 
-    `description` TEXT(65535)
-);
+-- create table if not exists Rooms (
+--     id int not null AUTO_INCREMENT PRIMARY KEY,
+--     `name` VARCHAR(255), 
+--     `description` TEXT(65535)
+-- );
 
 create table if not exists Messages(
     id int NOT NULL AUTO_INCREMENT PRIMARY KEY, 
@@ -51,9 +51,19 @@ create table if not exists Messages(
     foreign key (game_id) references Games(id) on delete cascade 
 );
 
-INSERT INTO Users (email, passhash, username, first_name, last_name,  chips) VALUES
-    ("email@email.com", "passhash", "House", "House", "House", 100);
+-- Insert the House
+INSERT INTO Users (email, passhash, username, first_name, last_name, `status`, chips) VALUES
+    ("house@email.com", "passhash", "House", "House", "House", "hit", 100);
 
+-- Insert the initial game
+INSERT INTO Games(game_state) VALUES
+    ("betting");
+
+-- Insert the House into the first game
+INSERT INTO Games_Players(game_id, player_id, `status`, hand_value) VALUES
+    (1, 1, "betting", 0);
+
+-- Insert all possible cards
 INSERT INTO Cards (card_name, card_value, card_suit) VALUES 
     ("AH", "A", "Hearts"),
     ("2H", "2", "Hearts"),
