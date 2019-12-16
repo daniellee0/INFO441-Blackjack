@@ -44,17 +44,19 @@ run through several hands against a dealer without any hiccups.
 | P2 (stretch goal) | As a player        | I want to retrieve chat info from a game during a particular session. Will utilize **REST API, REDIS, and MySQL** database                                                                                                                                                                                                                                |
 # Endpoints
 
-**`/v1/Users/register`:** ​Register a user for the current game session
+**`/v1/users/register`:** ​Register a user for the current game session
+
+**`/v1/users/signup`:** ​Sign up a new user
+
+**`/v1/games/{GameID}`:** ​Add new message to the game.
 
 **`/v1/Users/{userid}/unregister`:** ​ Unregister a user for the current game session
 
-**`/v1/Games/{gameid}/Users/{userid}/bet`:** ​ Place a bet on the next hand
+**`/v1/games/{GameID}/Users/{UserID}/bet`:** ​ Place a bet on the next hand
 
-**`v1/Games/{gameid}/Users/{userid}/deal`:** ​ Position cards
+**`/v1/games/{GameID}/Users/{UserID}/hit`:** ​ Execute a given hand
 
-**`/v1/Games/{gameid}/Users/{userid}/hit`:** ​ Execute a given hand
-
-**`v1/Games/{gameid}/Users/{userid}/stand`:** ​Execute a given hand
+**`v1/games/{GameID}/Users/{UserID}/stand`:** ​Execute a given hand
 
 
 ## Stretch goals:
