@@ -71,9 +71,6 @@ func (rs *RedisStore) Get(sid SessionID, sessionState interface{}) error {
 		return fmt.Errorf("error unmarshaling sessionState: %s", err.Error())
 	}
 	return nil
-	//for extra-credit using the Pipeline feature of the redis
-	//package to do both the get and the reset of the expiry time
-	//in just one network round trip!
 }
 
 //Delete deletes all state data associated with the SessionID from the store.

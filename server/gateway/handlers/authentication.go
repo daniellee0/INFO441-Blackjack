@@ -14,7 +14,15 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/streadway/amqp"
 )
+
+// Message struct to send to client
+type Message struct {
+	Type string      `json:"type"`
+	User *users.User `json:"user"`
+}
 
 //TODO: define HTTP handler functions as described in the
 //assignment description. Remember to use your handler context
@@ -158,24 +166,34 @@ func (ctx *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Reques
 
 	_, err2 := sessions.BeginSession(ctx.SigningKey, ctx.Store, state, w)
 	if err2 != nil {
+		fmt.Println("failed to begin session")
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
+	addError := ctx.Users.AddUserToGame(user.ID)
+	if addError != nil {
+		fmt.Println("failed to add user to game")
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	sendNewUserToClients(user)
+
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 
-	allUsers, err3 := ctx.Users.GetAllUsers(user.ID)
+	gameState, err3 := ctx.Users.GetGameState(1, user.ID)
 	if err3 != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(allUsers)
+	err = json.NewEncoder(w).Encode(gameState)
 
 	if err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
+	// Send message to
 
 }
 
@@ -227,4 +245,34 @@ func (ctx *HandlerContext) NewServiceProxy(addrs []*url.URL) *httputil.ReversePr
 			r.URL.Scheme = target.Scheme
 		},
 	}
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Fatalf("%s: %s", msg, err)
+	}
+}
+
+func sendNewUserToClients(user *users.User) {
+	conn, rabErr := amqp.Dial("amqp://rabbit:5672")
+	failOnError(rabErr, "Failed to connect to RabbitMQ")
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
+
+	m := Message{"user-new", user}
+	b, err := json.Marshal(m)
+
+	err = ch.Publish(
+		"",      // exchange
+		"queue", // routing key
+		false,   // mandatory
+		false,   // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        b,
+		})
+	failOnError(err, "Failed to publish a message")
 }

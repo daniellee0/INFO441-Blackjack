@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"INFO441-Blackjack/server/gateway/models/users"
 	"encoding/json"
 	"log"
 	"strconv"
@@ -28,9 +29,11 @@ func NewNotifier(event <-chan amqp.Delivery) *Notifier {
 	return notifier
 }
 
-//UserIds .
-type UserIds struct {
-	userIDs []int
+//ReceivedMessage .
+type ReceivedMessage struct {
+	messageType string
+	userIDs     []int
+	user        *users.User
 }
 
 //SendToClients .
@@ -38,23 +41,25 @@ func (nf *Notifier) SendToClients() {
 	for {
 		event := <-nf.eventQueue
 		nf.mutex.RLock()
-		var bodyIDs UserIds
-		if err := json.Unmarshal(event.Body, &bodyIDs); err != nil {
+		var message ReceivedMessage
+		if err := json.Unmarshal(event.Body, &message); err != nil {
 			log.Printf("Error: %v", err)
 		}
 
-		if len(bodyIDs.userIDs) > 0 {
-			for i := 0; i < len(bodyIDs.userIDs); i++ {
-				userID := strconv.Itoa(bodyIDs.userIDs[i])
+		if len(message.userIDs) > 0 {
+			for i := 0; i < len(message.userIDs); i++ {
+				userID := strconv.Itoa(message.userIDs[i])
 				if _, ok := nf.clients[userID]; ok {
+					// Do not send new user message to the same user
+					// if strconv.FormatInt(message.user.ID, 10) != userID {
 					err := nf.clients[userID].WriteMessage(websocket.TextMessage, event.Body)
 					if err != nil {
 						log.Printf("Error: %v", err)
 					}
+					// }
 				}
 			}
 		} else {
-			// log.Println(nf.clients)
 			for _, client := range nf.clients {
 				err := client.WriteMessage(websocket.TextMessage, event.Body)
 				if err != nil {

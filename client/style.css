@@ -1,9 +1,7 @@
 
 /* BASIC */
 
-html {
-    background-color: #56baed;
-  }
+
   
   body {
     font-family: "Poppins", sans-serif;
@@ -347,12 +345,12 @@ html {
   border: 4px solid black;
   border-radius: 2rem;
   padding: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* justify-content: flex-start; */
+  /* align-items: center; */
   width: 350px;
-  height: 140px;
+  height: 110px;
 }
 
 .other-player-container, .house-player-container {
@@ -433,12 +431,11 @@ p {
 .chat-container {
   border: 1px solid black;
   width: 330px;
-  height: 300px;
+  height: 800px;
   padding: 4px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  position: absolute;
   bottom: 10px;
   right: 10px;
 }
@@ -496,10 +493,36 @@ p {
 
 .house-player-container {
   position: absolute;
-  top: 20px; 
-  right: 6px;
+  left: 0;
+  right: 0;
+  margin-right: auto;
+  margin-left: auto;
 }
 
+#main {
+  /* top: 80px;  */
+  left: 0;
+  right: 0;
+  margin-right: auto;
+  margin-left: auto;
+}
 .hidden {
   display: none;
+}
+
+#game {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-gap: 10px;
+  margin: 10px;
+}
+
+#game > div {
+  margin: 20px 0;
+}
+
+#logout {
+  position: absolute;
+  right: 10px;
+  top: 10px;
 }

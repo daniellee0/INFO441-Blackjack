@@ -7,8 +7,6 @@ docker rmi -f donloby/game:latest
 #Pull from DockerHub
 docker pull donloby/game:latest
 
-docker rm -f game
-
 
 # Export environment variables
 export ADDR=":8002"

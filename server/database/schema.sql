@@ -16,9 +16,9 @@ create table if not exists Games (
 create table if not exists Games_Players (
     id int not null auto_increment primary key,
     game_id int not null,
-    player_id int not null,
+    player_id int not null unique,
     `status` varchar(64) not null,
-    hand_value int default 0,
+    bet_amount int default 0,
     foreign key (`game_id`) references `Games`(`id`) on delete cascade,
     foreign key (`player_id`) references `Users`(`id`) on delete cascade
 );
@@ -62,8 +62,9 @@ INSERT INTO Games(game_state) VALUES
     ("betting");
 
 -- Insert the House into the first game
-INSERT INTO Games_Players(game_id, player_id, `status`, hand_value) VALUES
-    (1, 1, "betting", 0);
+INSERT INTO Games_Players (game_id, player_id, `status`, bet_amount) VALUES
+    (1, 1, "ready", 0);
+
 
 -- Insert all possible cards
 INSERT INTO Cards (card_name, card_value, card_suit) VALUES 
@@ -76,7 +77,7 @@ INSERT INTO Cards (card_name, card_value, card_suit) VALUES
     ("7H", "7", "Hearts"),
     ("8H", "8", "Hearts"),
     ("9H", "9", "Hearts"),
-    ("10H", "10", "Hearts"),
+    ("0H", "10", "Hearts"),
     ("JH", "10", "Hearts"),
     ("QH", "10", "Hearts"),
     ("KH", "10", "Hearts"),
@@ -89,7 +90,7 @@ INSERT INTO Cards (card_name, card_value, card_suit) VALUES
     ("7D", "7", "Diamonds"),
     ("8D", "8", "Diamonds"),
     ("9D", "9", "Diamonds"),
-    ("10D", "10", "Diamonds"),
+    ("0D", "10", "Diamonds"),
     ("JD", "10", "Diamonds"),
     ("QD", "10", "Diamonds"),
     ("KD", "10", "Diamonds"),
@@ -102,7 +103,7 @@ INSERT INTO Cards (card_name, card_value, card_suit) VALUES
     ("7S", "7", "Spades"),
     ("8S", "8", "Spades"),
     ("9S", "9", "Spades"),
-    ("10S", "10", "Spades"),
+    ("0S", "10", "Spades"),
     ("JS", "10", "Spades"),
     ("QS", "10", "Spades"),
     ("KS", "10", "Spades"),
@@ -115,8 +116,12 @@ INSERT INTO Cards (card_name, card_value, card_suit) VALUES
     ("7C", "7", "Clubs"),
     ("8C", "8", "Clubs"),
     ("9C", "9", "Clubs"),
-    ("10C", "10", "Clubs"),
+    ("0C", "10", "Clubs"),
     ("JC", "10", "Clubs"),
     ("QC", "10", "Clubs"),
-    ("KC", "10", "Clubs");
+    ("KC", "10", "Clubs"),
+    ("Holder", "0", "Holder");
 
+-- Insert house cards
+INSERT INTO Users_Cards(player_id, card_id) VALUES
+    (1, 53);

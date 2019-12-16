@@ -105,18 +105,17 @@ func main() {
 			/v1/Games/{gameid}/Users/{userid}/hit
 			/v1/Games/{gameid}/Users/{userid}/stand
 	*/
-	mux.HandleFunc("/v1/users/signup", context.SignUpHandler)                     // To sign up
-	mux.HandleFunc("/v1/users/register", context.SessionsHandler)                 // For login
-	mux.HandleFunc("/v1/users/register/{UserID}", context.SpecificSessionHandler) // To end session
+	mux.HandleFunc("/v1/users/signup", context.SignUpHandler)     // To sign up
+	mux.HandleFunc("/v1/users/register", context.SessionsHandler) // For login
+	mux.HandleFunc("/v1/users/register/{UserID}", context.SpecificSessionHandler)
+	mux.Handle("/v1/users/unregister/{UserID}", context.NewServiceProxy(gameURLs)) // To end session
 
-	mux.Handle("v1/games/{GameID}/users/{UserID}/bet", context.NewServiceProxy(gameURLs)) // To bet
+	mux.Handle("/v1/games/{GameID}/users/{UserID}/bet", context.NewServiceProxy(gameURLs)) // To bet
 	// mux.Handle("v1/games/{gameID}/users/{userID}/deal")
-	mux.Handle("v1/games/{GameID}/users/{UserID}/hit", context.NewServiceProxy(gameURLs))   // To hit
-	mux.Handle("v1/games/{GameID}/users/{UserID}/stand", context.NewServiceProxy(gameURLs)) // To stand
+	mux.Handle("/v1/games/{GameID}/users/{UserID}/hit", context.NewServiceProxy(gameURLs))   // To hit
+	mux.Handle("/v1/games/{GameID}/users/{UserID}/stand", context.NewServiceProxy(gameURLs)) // To stand
 
-	mux.Handle("/v1/games/{GameID}", context.NewServiceProxy(chatURLs))             // Add message to chat
-	mux.Handle("/v1/games/{GameID}/members", context.NewServiceProxy(chatURLs))     // Add/Delete member to game chat
-	mux.Handle("/v1/games/{GameID}/{messageID}", context.NewServiceProxy(chatURLs)) // Update/Delete msg (optional)
+	mux.Handle("/v1/games/{GameID}", context.NewServiceProxy(chatURLs)) // Add message to chat
 	mux.Handle("/v1/websocket", context.NewWebSocketHandler(notifier))
 
 	wrappedMux := handlers.NewSetHeader(mux)

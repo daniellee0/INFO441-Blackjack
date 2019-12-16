@@ -1,5 +1,7 @@
 docker rm -f gateway
 
+docker rmi -f donloby/gateway:latest
+
 docker pull donloby/gateway:latest
 
 # make sure TLSCERT and TLSKEY exports are set

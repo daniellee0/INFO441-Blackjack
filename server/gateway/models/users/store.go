@@ -30,5 +30,11 @@ type Store interface {
 	Delete(id int64) error
 
 	// Gets all users
-	GetAllUsers(id int64) ([]*User, error)
+	GetAllUsers(id int64) ([]*Player, error)
+
+	// Adds user to the game on login
+	AddUserToGame(id int64) error
+
+	// Gets the game state
+	GetGameState(gameID int, playerID int64) (*GameState, error)
 }

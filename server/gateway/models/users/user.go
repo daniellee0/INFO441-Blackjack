@@ -24,6 +24,23 @@ type User struct {
 	Chips     int    `json:"chips"`
 }
 
+// Player represents a player in the game
+type Player struct {
+	ID        int64    `json:"id"`
+	UserName  string   `json:"userName"`
+	FirstName string   `json:"firstName"`
+	LastName  string   `json:"lastName"`
+	Chips     int      `json:"chips"`
+	Cards     []string `json:"cards"`
+	Status    string   `json:"status"`
+}
+
+//GameState Represents the game state
+type GameState struct {
+	Players []*Player `json:"players"`
+	Status  string    `json:"status"`
+}
+
 //Credentials represents user sign-in credentials
 type Credentials struct {
 	Email    string `json:"email"`
